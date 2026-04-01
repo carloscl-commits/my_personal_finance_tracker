@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { cn } from '@/lib/utils';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -13,47 +12,67 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
 }
 
+const sizeMap: Record<ButtonSize, { height: number; padding: string; fontSize: number; gap: number }> = {
+  sm: { height: 32, padding: '0 12px', fontSize: 12, gap: 6 },
+  md: { height: 36, padding: '0 16px', fontSize: 13, gap: 8 },
+  lg: { height: 40, padding: '0 20px', fontSize: 14, gap: 8 },
+};
+
+const variantMap: Record<ButtonVariant, React.CSSProperties> = {
+  primary: {
+    background: 'var(--accent)',
+    color: '#fff',
+    border: '1px solid transparent',
+  },
+  secondary: {
+    background: 'var(--bg-page)',
+    color: 'var(--text-primary)',
+    border: '1px solid var(--border-color)',
+  },
+  ghost: {
+    background: 'transparent',
+    color: 'var(--text-secondary)',
+    border: '1px solid transparent',
+  },
+  danger: {
+    background: '#dc2626',
+    color: '#fff',
+    border: '1px solid transparent',
+  },
+};
+
 export default function Button({
   variant = 'primary',
   size = 'md',
   icon,
   children,
-  className,
   disabled,
+  style: styleProp,
   ...props
 }: ButtonProps) {
-  const base = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 btn-press focus:outline-none disabled:opacity-50 disabled:pointer-events-none';
-
-  const variantStyle: Record<ButtonVariant, React.CSSProperties> = {
-    primary: {
-      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-      color: '#fff',
-      boxShadow: '0 2px 8px rgba(99,102,241,0.25)',
-    },
-    secondary: {
-      background: 'var(--bg-card)',
-      color: 'var(--text-primary)',
-      border: '1px solid var(--border-color)',
-      boxShadow: 'var(--shadow-card)',
-    },
-    ghost: { background: 'transparent', color: 'var(--text-secondary)' },
-    danger: {
-      background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
-      color: '#fff',
-      boxShadow: '0 2px 8px rgba(244,63,94,0.25)',
-    },
-  };
-
-  const sizes: Record<ButtonSize, string> = {
-    sm: 'h-8 px-3 text-[12px] gap-1.5',
-    md: 'h-9 px-4 text-[13px] gap-2',
-    lg: 'h-10 px-5 text-sm gap-2',
-  };
+  const s = sizeMap[size];
+  const v = variantMap[variant];
 
   return (
     <button
-      className={cn(base, sizes[size], className)}
-      style={variantStyle[variant]}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: s.gap,
+        height: s.height,
+        padding: s.padding,
+        fontSize: s.fontSize,
+        fontWeight: 600,
+        borderRadius: 10,
+        cursor: disabled ? 'default' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
+        pointerEvents: disabled ? 'none' : 'auto',
+        transition: 'background 150ms, opacity 150ms',
+        whiteSpace: 'nowrap',
+        ...v,
+        ...styleProp,
+      }}
       disabled={disabled}
       {...props}
     >

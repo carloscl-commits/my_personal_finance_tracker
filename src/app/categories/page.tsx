@@ -69,7 +69,7 @@ export default function CategoriesPage() {
         title="Categories"
         subtitle={`${categories.length} categories`}
         actions={
-          <Button size="sm" onClick={handleOpenAdd} icon={<Plus className="w-3.5 h-3.5" />}>
+          <Button size="sm" onClick={handleOpenAdd} icon={<Plus style={{ width: 14, height: 14 }} />}>
             <span className="hidden sm:inline">Add Category</span>
           </Button>
         }
@@ -81,7 +81,7 @@ export default function CategoriesPage() {
             title="No categories"
             description="Create your first category to organize transactions"
             action={
-              <Button size="sm" onClick={handleOpenAdd} icon={<Plus className="w-3.5 h-3.5" />}>
+              <Button size="sm" onClick={handleOpenAdd} icon={<Plus style={{ width: 14, height: 14 }} />}>
                 Add Category
               </Button>
             }
@@ -110,28 +110,26 @@ export default function CategoriesPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {cat.isDefault && (
-                        <span className="mr-1" title="Default category">
-                          <Lock className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                        <span title="Default category">
+                          <Lock style={{ width: 12, height: 12, color: 'var(--text-muted)' }} />
                         </span>
                       )}
                       <button
                         onClick={() => handleOpenEdit(cat)}
-                        className="p-1.5 rounded-md transition-colors hover:opacity-80"
-                        style={{ color: 'var(--text-muted)' }}
+                        style={{ padding: 6, borderRadius: 6, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'opacity 150ms' }}
                         aria-label={`Edit ${cat.name}`}
                       >
-                        <Pencil className="w-3.5 h-3.5" />
+                        <Pencil style={{ width: 14, height: 14 }} />
                       </button>
                       {!cat.isDefault && (
                         <button
                           onClick={() => setDeleteConfirmId(cat.id)}
-                          className="p-1.5 rounded-md transition-colors hover:opacity-80"
-                          style={{ color: 'var(--text-muted)' }}
+                          style={{ padding: 6, borderRadius: 6, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'opacity 150ms' }}
                           aria-label={`Delete ${cat.name}`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 style={{ width: 14, height: 14 }} />
                         </button>
                       )}
                     </div>
@@ -150,7 +148,7 @@ export default function CategoriesPage() {
         title={editingId ? 'Edit Category' : 'New Category'}
         size="sm"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Input
             label="Category Name"
             placeholder="e.g. Subscriptions"
@@ -158,26 +156,27 @@ export default function CategoriesPage() {
             onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
             required
           />
-          <div className="space-y-1.5">
-            <label className="block text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Color</label>
-            <div className="flex flex-wrap gap-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>Color</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {PRESET_COLORS.map(c => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setFormData(f => ({ ...f, color: c }))}
-                  className="w-7 h-7 rounded-lg transition-transform hover:scale-110"
                   aria-label={`Select color ${c}`}
                   style={{
+                    width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer',
                     backgroundColor: c,
                     outline: formData.color === c ? '2px solid var(--text-primary)' : 'none',
                     outlineOffset: '2px',
+                    transition: 'transform 150ms',
                   }}
                 />
               ))}
             </div>
           </div>
-          <div className="flex gap-3 pt-2">
+          <div style={{ display: 'flex', gap: 12, paddingTop: 8 }}>
             <Button type="submit">
               {editingId ? 'Update' : 'Create'} Category
             </Button>
@@ -195,13 +194,13 @@ export default function CategoriesPage() {
         title="Delete Category"
         size="sm"
       >
-        <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 8 }}>
           Are you sure you want to delete this category?
         </p>
-        <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+        <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
           Transactions in this category will be moved to &quot;Other&quot;.
         </p>
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: 12 }}>
           <Button variant="danger" onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}>
             Delete
           </Button>

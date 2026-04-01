@@ -15,11 +15,11 @@ export default function Card({ children, className, hover = false, padding = tru
     <div
       className={cn(
         'rounded-2xl',
-        padding && 'p-6',
         hover && 'card-hover cursor-pointer',
         className
       )}
       style={{
+        padding: padding ? 32 : 0,
         background: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-card)',

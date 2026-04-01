@@ -11,6 +11,10 @@ import { useFinance } from '@/hooks/FinanceContext';
 import { cn } from '@/lib/utils';
 import { SIDEBAR_W, SIDEBAR_W_COLLAPSED } from './AppShell';
 
+const DURATION = '400ms';
+const EASE = 'cubic-bezier(0.25, 1, 0.5, 1)';
+const T = `${DURATION} ${EASE}`;
+
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
@@ -31,7 +35,6 @@ export default function Sidebar({ mobileOpen, collapsed, onClose, onToggleCollap
   const pathname = usePathname();
   const { theme, toggleTheme } = useFinance();
 
-  // Lock body scroll when mobile sidebar is open
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = 'hidden';
@@ -39,73 +42,109 @@ export default function Sidebar({ mobileOpen, collapsed, onClose, onToggleCollap
     }
   }, [mobileOpen]);
 
-  const sidebarBg = theme === 'dark'
-    ? 'linear-gradient(180deg, #030712 0%, #0a0f1e 100%)'
-    : 'linear-gradient(180deg, #0c1222 0%, #131c31 100%)';
+  // All values are fixed px so CSS can interpolate
+  const itemW = collapsed ? 40 : SIDEBAR_W - 24;
+  const itemPx = collapsed ? 0 : 12;
+  const anim = mounted ? T : '0ms';
+
+  const itemGap = collapsed ? 0 : 12;
+
+  // Shared transition string for nav items & buttons
+  const itemTransition = `width ${anim}, padding-left ${anim}, padding-right ${anim}, gap ${anim}, background 150ms, color 150ms`;
 
   return (
     <>
       {mobileOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden" onClick={onClose} />
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+          style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={onClose}
+        />
       )}
 
       <style>{`
         .app-sidebar { width: ${SIDEBAR_W}px; }
         @media (min-width: 1024px) {
-          .app-sidebar { width: ${collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W}px !important; }
+          .app-sidebar {
+            width: ${collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W}px !important;
+            transform: translateX(0) !important;
+          }
         }
       `}</style>
+
       <aside
-        className={cn(
-          'app-sidebar fixed top-0 left-0 h-full z-50 flex flex-col overflow-hidden',
-          'lg:translate-x-0',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        )}
+        className="app-sidebar fixed top-0 left-0 h-full z-50 flex flex-col overflow-hidden"
         style={{
-          background: sidebarBg,
-          borderRight: '1px solid rgba(255,255,255,0.06)',
-          transition: mounted
-            ? 'width 280ms cubic-bezier(0.16,1,0.3,1), transform 280ms cubic-bezier(0.16,1,0.3,1)'
-            : 'none',
+          background: theme === 'dark'
+            ? 'linear-gradient(180deg, #070b14 0%, #0e1525 100%)'
+            : 'linear-gradient(180deg, #111827 0%, #1e293b 100%)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.06)',
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: mounted ? `width ${T}, transform ${T}` : 'none',
         }}
       >
-        {/* Logo */}
-        <div className={cn('flex items-center h-[60px] shrink-0', collapsed ? 'lg:justify-center lg:px-0 px-5' : 'px-5')}>
-          <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden" onClick={onClose}>
+        {/* ── Logo ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 64, flexShrink: 0 }}>
+          <Link
+            href="/dashboard"
+            onClick={onClose}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: itemGap,
+              width: itemW,
+              overflow: 'hidden',
+              transition: `width ${anim}, gap ${anim}`,
+              textDecoration: 'none',
+            }}
+          >
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              className="shrink-0"
               style={{
+                width: 36, height: 36, borderRadius: 12,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                boxShadow: '0 4px 12px rgba(99,102,241,0.3)',
+                boxShadow: '0 2px 8px rgba(99, 102, 241, 0.35)',
               }}
             >
-              <Wallet className="w-[18px] h-[18px] text-white" />
+              <Wallet style={{ width: 18, height: 18, color: '#fff' }} />
             </div>
             <span
-              className={cn(
-                'font-bold text-[17px] text-white whitespace-nowrap overflow-hidden tracking-tight',
-                'transition-all duration-200',
-                collapsed ? 'lg:w-0 lg:opacity-0' : 'w-auto opacity-100'
-              )}
-              style={{ fontFamily: 'var(--font-space-grotesk), sans-serif' }}
+              style={{
+                fontFamily: 'var(--font-space-grotesk), sans-serif',
+                fontWeight: 700, fontSize: 17, color: '#fff',
+                whiteSpace: 'nowrap', letterSpacing: '-0.02em',
+                opacity: collapsed ? 0 : 1,
+                transition: `opacity ${anim}`,
+              }}
             >
               Cashflow
             </span>
           </Link>
-          <button className="lg:hidden ml-auto p-1.5 rounded-lg text-slate-500 hover:text-slate-300 transition-colors" onClick={onClose}>
-            <X className="w-4 h-4" />
+          <button
+            className="lg:hidden"
+            onClick={onClose}
+            style={{
+              position: 'absolute', right: 12, top: 20, padding: 6,
+              borderRadius: 8, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer',
+            }}
+          >
+            <X style={{ width: 16, height: 16 }} />
           </button>
         </div>
 
-        {/* Nav */}
-        <nav className={cn('flex-1 py-4 overflow-y-auto overflow-x-hidden', collapsed ? 'lg:px-2 px-3' : 'px-3')}>
-          <p className={cn(
-            'text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-2 transition-all duration-200',
-            collapsed ? 'lg:hidden' : 'px-3'
-          )}>
+        {/* ── Nav ── */}
+        <nav style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 16, paddingBottom: 16 }}>
+          <p style={{
+            fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.1em',
+            color: '#64748b', width: itemW, paddingLeft: 4, overflow: 'hidden', whiteSpace: 'nowrap',
+            opacity: collapsed ? 0 : 1, height: collapsed ? 0 : 18, marginBottom: collapsed ? 0 : 8,
+            transition: `width ${anim}, opacity ${anim}, height ${anim}, margin ${anim}`,
+          }}>
             Menu
           </p>
-          <div className="space-y-1">
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', width: '100%' }}>
             {NAV_ITEMS.map(item => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
               const Icon = item.icon;
@@ -115,30 +154,30 @@ export default function Sidebar({ mobileOpen, collapsed, onClose, onToggleCollap
                   href={item.href}
                   onClick={onClose}
                   title={collapsed ? item.label : undefined}
-                  className={cn(
-                    'relative flex items-center gap-3 rounded-xl text-[13px] font-medium',
-                    'transition-all duration-200',
-                    collapsed ? 'lg:justify-center lg:w-11 lg:h-10 lg:mx-auto lg:p-0 px-3 py-2.5' : 'px-3 py-2.5',
-                    isActive
-                      ? 'text-white'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
-                  )}
-                  style={isActive ? {
-                    background: 'linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(139,92,246,0.1) 100%)',
-                    boxShadow: 'inset 0 0 0 1px rgba(99,102,241,0.15)',
-                  } : undefined}
+                  className={cn(!isActive && 'hover:bg-white/[0.05]')}
+                  style={{
+                    display: 'flex', alignItems: 'center',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    gap: itemGap, width: itemW, height: 40, borderRadius: 8,
+                    paddingLeft: itemPx, paddingRight: itemPx,
+                    fontSize: 13, fontWeight: 500, textDecoration: 'none',
+                    color: isActive ? '#fff' : '#94a3b8',
+                    overflow: 'hidden', position: 'relative',
+                    transition: itemTransition,
+                    ...(isActive ? {
+                      background: 'rgba(99, 102, 241, 0.15)',
+                      boxShadow: 'inset 0 0 0 1px rgba(99, 102, 241, 0.2)',
+                    } : {}),
+                  }}
                 >
                   {isActive && !collapsed && (
-                    <span
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
-                      style={{ background: 'linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%)' }}
-                    />
+                    <span style={{
+                      position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+                      width: 3, height: 16, borderRadius: '0 99px 99px 0', background: '#818cf8',
+                    }} />
                   )}
-                  <Icon className="w-[18px] h-[18px] shrink-0" style={isActive ? { color: '#a5b4fc' } : undefined} />
-                  <span className={cn(
-                    'whitespace-nowrap overflow-hidden transition-all duration-200',
-                    collapsed ? 'lg:w-0 lg:opacity-0' : 'w-auto opacity-100'
-                  )}>
+                  <Icon className="shrink-0" style={{ width: 18, height: 18, color: isActive ? '#a5b4fc' : undefined }} />
+                  <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', width: collapsed ? 0 : 'auto', opacity: collapsed ? 0 : 1, transition: `width ${anim}, opacity ${anim}` }}>
                     {item.label}
                   </span>
                 </Link>
@@ -147,34 +186,52 @@ export default function Sidebar({ mobileOpen, collapsed, onClose, onToggleCollap
           </div>
         </nav>
 
-        {/* Bottom */}
-        <div className={cn('py-3 space-y-1', collapsed ? 'lg:px-2 px-3' : 'px-3')}
-          style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
-        >
+        {/* ── Bottom ── */}
+        <div style={{
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          padding: '12px 0', display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center',
+        }}>
           <button
             onClick={toggleTheme}
             title={collapsed ? (theme === 'light' ? 'Dark' : 'Light') : undefined}
-            className={cn(
-              'flex items-center gap-3 w-full rounded-xl text-[13px] font-medium',
-              'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all duration-200',
-              collapsed ? 'lg:justify-center lg:h-10 lg:w-11 lg:mx-auto lg:p-0 px-3 py-2.5' : 'px-3 py-2.5'
-            )}
+            className="hover:bg-white/[0.05]"
+            style={{
+              display: 'flex', alignItems: 'center',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              gap: itemGap, width: itemW, height: 40, borderRadius: 8,
+              paddingLeft: itemPx, paddingRight: itemPx,
+              fontSize: 13, fontWeight: 500, color: '#94a3b8',
+              background: 'none', border: 'none', cursor: 'pointer', overflow: 'hidden',
+              transition: itemTransition,
+            }}
           >
-            {theme === 'light' ? <Moon className="w-[18px] h-[18px] shrink-0" /> : <Sun className="w-[18px] h-[18px] shrink-0" />}
-            <span className={cn('whitespace-nowrap overflow-hidden transition-all duration-200', collapsed ? 'lg:w-0 lg:opacity-0' : 'w-auto opacity-100')}>
+            {theme === 'light'
+              ? <Moon className="shrink-0" style={{ width: 18, height: 18 }} />
+              : <Sun className="shrink-0" style={{ width: 18, height: 18 }} />
+            }
+            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', width: collapsed ? 0 : 'auto', opacity: collapsed ? 0 : 1, transition: `width ${anim}, opacity ${anim}` }}>
               {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
             </span>
           </button>
+
           <button
             onClick={onToggleCollapse}
-            className={cn(
-              'hidden lg:flex items-center gap-3 w-full rounded-xl text-[13px] font-medium',
-              'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all duration-200',
-              collapsed ? 'lg:justify-center lg:h-10 lg:w-11 lg:mx-auto lg:p-0 px-3 py-2.5' : 'px-3 py-2.5'
-            )}
+            className="hidden lg:flex hover:bg-white/[0.05]"
+            style={{
+              alignItems: 'center',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              gap: itemGap, width: itemW, height: 40, borderRadius: 8,
+              paddingLeft: itemPx, paddingRight: itemPx,
+              fontSize: 13, fontWeight: 500, color: '#94a3b8',
+              background: 'none', border: 'none', cursor: 'pointer', overflow: 'hidden',
+              transition: itemTransition,
+            }}
           >
-            {collapsed ? <PanelLeftOpen className="w-[18px] h-[18px] shrink-0" /> : <PanelLeftClose className="w-[18px] h-[18px] shrink-0" />}
-            <span className={cn('whitespace-nowrap overflow-hidden transition-all duration-200', collapsed ? 'lg:w-0 lg:opacity-0' : 'w-auto opacity-100')}>
+            {collapsed
+              ? <PanelLeftOpen className="shrink-0" style={{ width: 18, height: 18 }} />
+              : <PanelLeftClose className="shrink-0" style={{ width: 18, height: 18 }} />
+            }
+            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', width: collapsed ? 0 : 'auto', opacity: collapsed ? 0 : 1, transition: `width ${anim}, opacity ${anim}` }}>
               Collapse
             </span>
           </button>

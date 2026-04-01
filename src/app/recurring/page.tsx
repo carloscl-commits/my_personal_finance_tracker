@@ -119,7 +119,7 @@ export default function RecurringPage() {
         title="Recurring Transactions"
         subtitle={`${recurringRules.length} rules`}
         actions={
-          <Button size="sm" onClick={handleOpenAdd} icon={<Plus className="w-3.5 h-3.5" />}>
+          <Button size="sm" onClick={handleOpenAdd} icon={<Plus style={{ width: 14, height: 14 }} />}>
             <span className="hidden sm:inline">Add Rule</span>
           </Button>
         }
@@ -131,7 +131,7 @@ export default function RecurringPage() {
             title="No recurring rules"
             description="Set up automatic recurring transactions like subscriptions, salary, or rent"
             action={
-              <Button size="sm" onClick={handleOpenAdd} icon={<Plus className="w-3.5 h-3.5" />}>
+              <Button size="sm" onClick={handleOpenAdd} icon={<Plus style={{ width: 14, height: 14 }} />}>
                 Add Recurring Rule
               </Button>
             }
@@ -147,7 +147,7 @@ export default function RecurringPage() {
                       className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                       style={{ backgroundColor: (cat?.color || '#6b7280') + '18' }}
                     >
-                      <Repeat className="w-4 h-4" style={{ color: cat?.color || '#6b7280' }} />
+                      <Repeat style={{ width: 16, height: 16, color: cat?.color || '#6b7280' }} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -190,7 +190,7 @@ export default function RecurringPage() {
                         style={{ color: 'var(--text-muted)' }}
                         aria-label={rule.isActive ? `Pause ${rule.description}` : `Resume ${rule.description}`}
                       >
-                        {rule.isActive ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                        {rule.isActive ? <Pause style={{ width: 14, height: 14 }} /> : <Play style={{ width: 14, height: 14 }} />}
                       </button>
                       <button
                         onClick={() => handleOpenEdit(rule)}
@@ -198,7 +198,7 @@ export default function RecurringPage() {
                         style={{ color: 'var(--text-muted)' }}
                         aria-label={`Edit ${rule.description}`}
                       >
-                        <Pencil className="w-3.5 h-3.5" />
+                        <Pencil style={{ width: 14, height: 14 }} />
                       </button>
                       <button
                         onClick={() => setDeleteConfirmId(rule.id)}
@@ -206,7 +206,7 @@ export default function RecurringPage() {
                         style={{ color: 'var(--text-muted)' }}
                         aria-label={`Delete ${rule.description}`}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 style={{ width: 14, height: 14 }} />
                       </button>
                     </div>
                   </div>
@@ -223,7 +223,7 @@ export default function RecurringPage() {
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Recurring Rule' : 'New Recurring Rule'}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Input
             label="Description"
             placeholder="e.g. Monthly Rent"
@@ -231,7 +231,7 @@ export default function RecurringPage() {
             onChange={e => setFormData(f => ({ ...f, description: e.target.value }))}
             required
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Input
               label="Amount ($)"
               type="number"
@@ -252,7 +252,7 @@ export default function RecurringPage() {
               ]}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Select
               label="Frequency"
               value={formData.interval}
@@ -282,17 +282,16 @@ export default function RecurringPage() {
             value={formData.notes}
             onChange={e => setFormData(f => ({ ...f, notes: e.target.value }))}
           />
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={formData.isActive}
               onChange={e => setFormData(f => ({ ...f, isActive: e.target.checked }))}
-              className="w-4 h-4 rounded"
-              style={{ borderColor: 'var(--border-color)', accentColor: 'var(--accent)' }}
+              style={{ width: 16, height: 16, borderRadius: 4, accentColor: 'var(--accent)' }}
             />
-            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Active</span>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Active</span>
           </label>
-          <div className="flex gap-3 pt-2">
+          <div style={{ display: 'flex', gap: 12, paddingTop: 8 }}>
             <Button type="submit">
               {editingId ? 'Update' : 'Create'} Rule
             </Button>
@@ -310,13 +309,13 @@ export default function RecurringPage() {
         title="Delete Recurring Rule"
         size="sm"
       >
-        <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 8 }}>
           Are you sure you want to delete this recurring rule?
         </p>
-        <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+        <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
           Previously generated transactions will not be affected.
         </p>
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: 12 }}>
           <Button variant="danger" onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}>
             Delete
           </Button>

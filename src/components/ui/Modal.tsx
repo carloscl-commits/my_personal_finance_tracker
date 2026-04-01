@@ -33,25 +33,57 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: M
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
       <div
-        className={cn('relative w-full rounded-2xl animate-scale-in max-h-[90vh] flex flex-col', sizeStyles[size])}
-        style={{ background: 'var(--bg-card)', boxShadow: '0 24px 48px rgba(0,0,0,0.12)' }}
+        className="absolute inset-0"
+        style={{ background: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(4px)' }}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        className={cn(
+          'relative w-full rounded-2xl animate-scale-in max-h-[90vh] flex flex-col',
+          sizeStyles[size]
+        )}
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-color)',
+          boxShadow: 'var(--shadow-modal)',
+        }}
       >
-        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
-          <h2 className="text-[15px] font-bold" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
+        <div
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '20px 28px',
+            borderBottom: '1px solid var(--border-color)',
+          }}
+        >
+          <h2
+            style={{
+              fontSize: 15, fontWeight: 700,
+              fontFamily: 'var(--font-space-grotesk), sans-serif',
+              color: 'var(--text-primary)',
+            }}
+          >
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg transition-colors"
-            style={{ color: 'var(--text-muted)' }}
+            style={{
+              padding: 6, borderRadius: 8, color: 'var(--text-muted)',
+              background: 'none', border: 'none', cursor: 'pointer',
+              transition: 'opacity 150ms',
+            }}
           >
-            <X className="w-4 h-4" />
+            <X style={{ width: 16, height: 16 }} />
           </button>
         </div>
-        <div className="px-6 py-5 overflow-y-auto flex-1">{children}</div>
+        <div style={{ padding: '24px 28px', overflowY: 'auto', flex: 1 }}>{children}</div>
       </div>
     </div>
   );

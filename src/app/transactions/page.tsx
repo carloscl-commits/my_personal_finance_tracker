@@ -253,7 +253,7 @@ export default function TransactionsPage() {
                   <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Download all transactions as CSV</p>
                 </div>
               </div>
-              <Button onClick={handleExport} icon={<Download className="w-4 h-4" />}>
+              <Button onClick={handleExport} icon={<Download style={{ width: 16, height: 16 }} />}>
                 Export CSV
               </Button>
             </Card>
@@ -275,12 +275,26 @@ export default function TransactionsPage() {
                 </div>
               </div>
               <label
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white transition-colors cursor-pointer btn-press hover:opacity-80"
-                style={{ background: 'var(--accent)' }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  height: 36,
+                  padding: '0 16px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  borderRadius: 10,
+                  color: '#fff',
+                  background: 'var(--accent)',
+                  border: '1px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'opacity 150ms',
+                }}
               >
-                <Upload className="w-4 h-4" />
+                <Upload style={{ width: 14, height: 14 }} />
                 Choose File
-                <input type="file" accept=".csv" className="hidden" onChange={handleFileUpload} />
+                <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />
               </label>
             </Card>
           </div>
@@ -368,78 +382,133 @@ export default function TransactionsPage() {
         subtitle={`${transactions.length} total`}
 
         actions={
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" onClick={() => setCsvTab(true)} icon={<Download className="w-3.5 h-3.5" />}>
-              <span className="hidden sm:inline">CSV</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button variant="secondary" size="sm" onClick={() => setCsvTab(true)} icon={<Download style={{ width: 14, height: 14 }} />}>
+              CSV
             </Button>
-            <Button size="sm" onClick={handleOpenAdd} icon={<Plus className="w-3.5 h-3.5" />}>
-              <span className="hidden sm:inline">Add</span>
+            <Button size="sm" onClick={handleOpenAdd} icon={<Plus style={{ width: 14, height: 14 }} />}>
+              Add
             </Button>
           </div>
         }
       />
       <PageWrapper>
         {/* Filters */}
-        <Card className="mb-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            <div className="relative lg:col-span-2">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+        <Card>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '2fr 1fr 1fr 1fr',
+              gap: 12,
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <Search
+                style={{
+                  position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                  width: 16, height: 16, color: 'var(--text-muted)',
+                }}
+              />
               <input
                 type="text"
                 placeholder="Search transactions..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2"
                 style={{
-                  borderColor: 'var(--border-color)',
-                  background: 'var(--bg-card)',
+                  width: '100%', height: 36, paddingLeft: 36, paddingRight: 12,
+                  fontSize: 13, borderRadius: 8,
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-page)',
                   color: 'var(--text-primary)',
+                  outline: 'none',
                 }}
               />
             </div>
-            <Select
+            <select
               value={filterType}
               onChange={e => setFilterType(e.target.value as 'all' | TransactionType)}
-              options={[
-                { value: 'all', label: 'All Types' },
-                { value: 'income', label: 'Income' },
-                { value: 'expense', label: 'Expense' },
-              ]}
-            />
-            <Select
+              style={{
+                width: '100%', height: 36, padding: '0 12px',
+                fontSize: 13, borderRadius: 8,
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-page)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+                cursor: 'pointer',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 10px center',
+                paddingRight: 30,
+              }}
+            >
+              <option value="all">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+            <select
               value={filterCategory}
               onChange={e => setFilterCategory(e.target.value)}
-              options={categoryOptions}
-            />
-            <div className="flex gap-2">
+              style={{
+                width: '100%', height: 36, padding: '0 12px',
+                fontSize: 13, borderRadius: 8,
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-page)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+                cursor: 'pointer',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 10px center',
+                paddingRight: 30,
+              }}
+            >
+              {categoryOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <div style={{ display: 'flex', gap: 8 }}>
               <input
                 type="date"
                 value={filterDateFrom}
                 onChange={e => setFilterDateFrom(e.target.value)}
-                className="flex-1 px-2 py-2 text-xs rounded-lg border transition-colors focus:outline-none focus:ring-2"
+                onClick={e => (e.target as HTMLInputElement).showPicker?.()}
+                placeholder="From"
                 style={{
-                  borderColor: 'var(--border-color)',
-                  background: 'var(--bg-card)',
+                  flex: 1, minWidth: 0, height: 36, padding: '0 10px',
+                  fontSize: 13, borderRadius: 8,
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-page)',
                   color: 'var(--text-primary)',
+                  outline: 'none',
+                  cursor: 'pointer',
                 }}
               />
               <input
                 type="date"
                 value={filterDateTo}
                 onChange={e => setFilterDateTo(e.target.value)}
-                className="flex-1 px-2 py-2 text-xs rounded-lg border transition-colors focus:outline-none focus:ring-2"
+                onClick={e => (e.target as HTMLInputElement).showPicker?.()}
+                placeholder="To"
                 style={{
-                  borderColor: 'var(--border-color)',
-                  background: 'var(--bg-card)',
+                  flex: 1, minWidth: 0, height: 36, padding: '0 10px',
+                  fontSize: 13, borderRadius: 8,
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-page)',
                   color: 'var(--text-primary)',
+                  outline: 'none',
+                  cursor: 'pointer',
                 }}
               />
             </div>
           </div>
         </Card>
 
+        <div style={{ height: 20 }} />
+
         {/* Transaction List */}
-        <Card padding={false}>
+        <Card>
           {filteredTransactions.length === 0 ? (
             <EmptyState
               icon={<ArrowLeftRight className="w-7 h-7" style={{ color: 'var(--text-muted)' }} />}
@@ -449,7 +518,7 @@ export default function TransactionsPage() {
                 : "Add your first transaction to get started"}
               action={
                 !search && filterType === 'all' ? (
-                  <Button size="sm" onClick={handleOpenAdd} icon={<Plus className="w-3.5 h-3.5" />}>
+                  <Button size="sm" onClick={handleOpenAdd} icon={<Plus style={{ width: 14, height: 14 }} />}>
                     Add Transaction
                   </Button>
                 ) : undefined
@@ -459,87 +528,114 @@ export default function TransactionsPage() {
             <>
               {/* Sort Header */}
               <div
-                className="flex items-center gap-4 px-5 py-3 text-xs font-medium uppercase tracking-wider"
-                style={{ borderBottomWidth: '1px', borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 16,
+                  padding: '0 8px 16px', marginBottom: 8,
+                  borderBottom: '1px solid var(--border-color)',
+                  fontSize: 11, fontWeight: 600, textTransform: 'uppercase' as const,
+                  letterSpacing: '0.06em', color: 'var(--text-muted)',
+                }}
               >
-                <span className="w-9" />
-                <span className="flex-1">Description</span>
+                <span style={{ width: 40 }} />
+                <span style={{ flex: 1 }}>Description</span>
                 <button
                   onClick={() => toggleSort('date')}
-                  className="flex items-center gap-1 transition-colors hover:opacity-80"
-                  aria-label={`Sort by date ${sortField === 'date' ? (sortDir === 'asc' ? 'descending' : 'ascending') : ''}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 'inherit', fontWeight: 'inherit', textTransform: 'inherit' as const,
+                    letterSpacing: 'inherit', color: 'inherit',
+                  }}
                 >
                   Date
-                  {sortField === 'date' && <ArrowUpDown className="w-3 h-3" />}
+                  {sortField === 'date' && <ArrowUpDown style={{ width: 12, height: 12 }} />}
                 </button>
-                <span className="w-20 text-center hidden sm:block">Category</span>
+                <span style={{ width: 80, textAlign: 'center' }}>Category</span>
                 <button
                   onClick={() => toggleSort('amount')}
-                  className="flex items-center gap-1 w-24 justify-end transition-colors hover:opacity-80"
-                  aria-label={`Sort by amount ${sortField === 'amount' ? (sortDir === 'asc' ? 'descending' : 'ascending') : ''}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
+                    width: 100, background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 'inherit', fontWeight: 'inherit', textTransform: 'inherit' as const,
+                    letterSpacing: 'inherit', color: 'inherit',
+                  }}
                 >
                   Amount
-                  {sortField === 'amount' && <ArrowUpDown className="w-3 h-3" />}
+                  {sortField === 'amount' && <ArrowUpDown style={{ width: 12, height: 12 }} />}
                 </button>
-                <span className="w-16" />
+                <span style={{ width: 64 }} />
               </div>
 
               {/* Rows */}
-              <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {filteredTransactions.map(tx => {
                   const cat = categoryMap.get(tx.categoryId);
                   return (
                     <div
                       key={tx.id}
-                      className="flex items-center gap-4 px-5 py-3 transition-colors hover:opacity-90"
-                      style={{ borderColor: 'var(--border-color)' }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 16,
+                        padding: '12px 8px', borderRadius: 12,
+                        transition: 'background 150ms',
+                        cursor: 'default',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                     >
                       <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: (cat?.color || '#6b7280') + '18' }}
+                        style={{
+                          width: 40, height: 40, borderRadius: 12,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexShrink: 0,
+                          background: (cat?.color || '#6b7280') + '14',
+                        }}
                       >
                         {tx.type === 'income' ? (
-                          <ArrowUpRight className="w-4 h-4" style={{ color: 'var(--income)' }} />
+                          <ArrowUpRight style={{ width: 18, height: 18, color: 'var(--income)' }} />
                         ) : (
-                          <ArrowDownRight className="w-4 h-4" style={{ color: cat?.color || '#6b7280' }} />
+                          <ArrowDownRight style={{ width: 18, height: 18, color: cat?.color || '#6b7280' }} />
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{tx.description}</p>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {tx.description}
+                        </p>
                         {tx.notes && (
-                          <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{tx.notes}</p>
+                          <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {tx.notes}
+                          </p>
                         )}
                       </div>
-                      <span className="text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: 12, whiteSpace: 'nowrap', color: 'var(--text-muted)' }}>
                         {format(parseISO(tx.date), 'MMM d, yyyy')}
                       </span>
-                      <span className="w-20 text-center hidden sm:block">
+                      <span style={{ width: 80, textAlign: 'center' }}>
                         <Badge color={cat?.color}>{cat?.name || 'Other'}</Badge>
                       </span>
                       <span
-                        className="w-24 text-right text-sm font-semibold tabular-nums"
                         style={{
+                          width: 100, textAlign: 'right',
+                          fontSize: 14, fontWeight: 700,
+                          fontVariantNumeric: 'tabular-nums',
                           color: tx.type === 'income' ? 'var(--income)' : 'var(--expense)',
                         }}
                       >
                         {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
                       </span>
-                      <div className="w-16 flex items-center justify-end gap-1">
+                      <div style={{ width: 64, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
                         <button
                           onClick={() => handleOpenEdit(tx)}
-                          className="p-1.5 rounded-md transition-colors hover:opacity-80"
-                          style={{ color: 'var(--text-muted)' }}
+                          style={{ padding: 6, borderRadius: 6, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'opacity 150ms' }}
                           aria-label={`Edit ${tx.description}`}
                         >
-                          <Pencil className="w-3.5 h-3.5" />
+                          <Pencil style={{ width: 14, height: 14 }} />
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(tx.id)}
-                          className="p-1.5 rounded-md transition-colors hover:opacity-80"
-                          style={{ color: 'var(--text-muted)' }}
+                          style={{ padding: 6, borderRadius: 6, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'opacity 150ms' }}
                           aria-label={`Delete ${tx.description}`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 style={{ width: 14, height: 14 }} />
                         </button>
                       </div>
                     </div>
@@ -557,8 +653,8 @@ export default function TransactionsPage() {
         onClose={() => setModalOpen(false)}
         title={editingId ? 'Edit Transaction' : 'Add Transaction'}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Input
               label="Date"
               type="date"
@@ -584,7 +680,7 @@ export default function TransactionsPage() {
             onChange={e => setFormData(f => ({ ...f, description: e.target.value }))}
             required
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Select
               label="Type"
               value={formData.type}
@@ -607,17 +703,16 @@ export default function TransactionsPage() {
             value={formData.notes}
             onChange={e => setFormData(f => ({ ...f, notes: e.target.value }))}
           />
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={formData.isRecurring}
               onChange={e => setFormData(f => ({ ...f, isRecurring: e.target.checked }))}
-              className="w-4 h-4 rounded"
-              style={{ borderColor: 'var(--border-color)', accentColor: 'var(--accent)' }}
+              style={{ width: 16, height: 16, borderRadius: 4, accentColor: 'var(--accent)' }}
             />
-            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Mark as recurring</span>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Mark as recurring</span>
           </label>
-          <div className="flex gap-3 pt-2">
+          <div style={{ display: 'flex', gap: 12, paddingTop: 8 }}>
             <Button type="submit">
               {editingId ? 'Update' : 'Add'} Transaction
             </Button>
@@ -635,10 +730,10 @@ export default function TransactionsPage() {
         title="Delete Transaction"
         size="sm"
       >
-        <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
           Are you sure you want to delete this transaction? This action cannot be undone.
         </p>
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: 12 }}>
           <Button variant="danger" onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}>
             Delete
           </Button>

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { cn } from '@/lib/utils';
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -9,32 +8,40 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, className, id, ...props }, ref) => {
+  ({ label, error, id, style: styleProp, ...props }, ref) => {
     const textareaId = id || label?.toLowerCase().replace(/\s+/g, '-');
     return (
-      <div className="space-y-1.5">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {label && (
-          <label htmlFor={textareaId} className="block text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
+          <label
+            htmlFor={textareaId}
+            style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}
+          >
             {label}
           </label>
         )}
         <textarea
           ref={ref}
           id={textareaId}
-          className={cn(
-            'w-full px-3 py-2 text-[13px] rounded-xl resize-none transition-colors duration-150',
-            'focus:outline-none focus:ring-2 focus:ring-offset-1',
-            className
-          )}
           style={{
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
+            width: '100%',
+            padding: '8px 12px',
+            fontSize: 13,
+            borderRadius: 8,
             border: `1px solid ${error ? 'var(--expense)' : 'var(--border-color)'}`,
+            background: 'var(--bg-page)',
+            color: 'var(--text-primary)',
+            outline: 'none',
+            resize: 'none',
+            transition: 'border-color 150ms',
+            ...styleProp,
           }}
           rows={3}
           {...props}
         />
-        {error && <p className="text-[11px]" style={{ color: 'var(--expense)' }}>{error}</p>}
+        {error && (
+          <p style={{ fontSize: 11, color: 'var(--expense)' }}>{error}</p>
+        )}
       </div>
     );
   }

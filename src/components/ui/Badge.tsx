@@ -14,8 +14,11 @@ export default function Badge({ children, color, variant = 'solid', className }:
   if (color && variant === 'solid') {
     return (
       <span
-        className={cn('inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-semibold tracking-wide', className)}
-        style={{ backgroundColor: color + '14', color }}
+        className={cn(
+          'inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold tracking-wide',
+          className
+        )}
+        style={{ backgroundColor: color + '16', color }}
       >
         {children}
       </span>
@@ -24,9 +27,12 @@ export default function Badge({ children, color, variant = 'solid', className }:
 
   return (
     <span
-      className={cn('inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-semibold tracking-wide', className)}
+      className={cn(
+        'inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold tracking-wide',
+        className
+      )}
       style={{
-        background: 'var(--bg-hover)',
+        background: 'var(--bg-inset)',
         color: 'var(--text-secondary)',
         border: variant === 'outline' ? '1px solid var(--border-color)' : 'none',
       }}
