@@ -19,7 +19,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { theme } = useFinance();
+  const { theme, accentColor } = useFinance();
 
   const onMenuClick = useCallback(() => setMobileOpen(true), []);
   const onClose = useCallback(() => setMobileOpen(false), []);
@@ -54,6 +54,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           mounted={mounted}
         />
         <style>{`
+          :root, [data-theme] {
+            --accent: ${accentColor || '#6366f1'};
+            --accent-hover: color-mix(in srgb, ${accentColor || '#6366f1'} 85%, #000);
+            --accent-muted: color-mix(in srgb, ${accentColor || '#6366f1'} 10%, transparent);
+            --accent-glow: color-mix(in srgb, ${accentColor || '#6366f1'} 20%, transparent);
+          }
           .app-main { padding-left: 0; }
           @media (min-width: 1024px) {
             .app-main { padding-left: ${sidebarPx}px !important; }

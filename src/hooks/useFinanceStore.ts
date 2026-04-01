@@ -60,6 +60,7 @@ function createSeedData(): FinanceData {
     categories: DEFAULT_CATEGORIES,
     recurringRules: [],
     theme: 'light',
+    accentColor: '#6366f1',
   };
 }
 
@@ -70,6 +71,7 @@ function migrateData(raw: Record<string, unknown>): FinanceData {
     categories: Array.isArray(raw.categories) ? raw.categories : DEFAULT_CATEGORIES,
     recurringRules: Array.isArray(raw.recurringRules) ? raw.recurringRules : [],
     theme: raw.theme === 'dark' ? 'dark' : 'light',
+    accentColor: typeof raw.accentColor === 'string' ? raw.accentColor : '#6366f1',
   };
 }
 
@@ -276,6 +278,10 @@ export function useFinanceStore(): FinanceStore {
     }));
   }, []);
 
+  const setAccentColor = useCallback((color: string): void => {
+    setData(prev => ({ ...prev, accentColor: color }));
+  }, []);
+
   // ── Reset ──
   const resetData = useCallback((): void => {
     const seed = createSeedData();
@@ -298,6 +304,7 @@ export function useFinanceStore(): FinanceStore {
     deleteRecurringRule,
     generateDueRecurringTransactions,
     toggleTheme,
+    setAccentColor,
     resetData,
   };
 }
