@@ -13,19 +13,6 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-white hover:bg-accent-hover shadow-sm',
-  secondary: 'bg-bg-secondary text-text-primary hover:bg-bg-tertiary border border-border',
-  ghost: 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary',
-  danger: 'bg-expense text-white hover:opacity-90 shadow-sm',
-};
-
-const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-xs gap-1.5',
-  md: 'px-4 py-2 text-sm gap-2',
-  lg: 'px-5 py-2.5 text-sm gap-2',
-};
-
 export default function Button({
   variant = 'primary',
   size = 'md',
@@ -35,16 +22,38 @@ export default function Button({
   disabled,
   ...props
 }: ButtonProps) {
+  const base = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 btn-press focus:outline-none disabled:opacity-50 disabled:pointer-events-none';
+
+  const variantStyle: Record<ButtonVariant, React.CSSProperties> = {
+    primary: {
+      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+      color: '#fff',
+      boxShadow: '0 2px 8px rgba(99,102,241,0.25)',
+    },
+    secondary: {
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      border: '1px solid var(--border-color)',
+      boxShadow: 'var(--shadow-card)',
+    },
+    ghost: { background: 'transparent', color: 'var(--text-secondary)' },
+    danger: {
+      background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
+      color: '#fff',
+      boxShadow: '0 2px 8px rgba(244,63,94,0.25)',
+    },
+  };
+
+  const sizes: Record<ButtonSize, string> = {
+    sm: 'h-8 px-3 text-[12px] gap-1.5',
+    md: 'h-9 px-4 text-[13px] gap-2',
+    lg: 'h-10 px-5 text-sm gap-2',
+  };
+
   return (
     <button
-      className={cn(
-        'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 btn-press',
-        'focus:outline-none focus:ring-2 focus:ring-accent/30 focus:ring-offset-1',
-        'disabled:opacity-50 disabled:pointer-events-none',
-        variantStyles[variant],
-        sizeStyles[size],
-        className
-      )}
+      className={cn(base, sizes[size], className)}
+      style={variantStyle[variant]}
       disabled={disabled}
       {...props}
     >

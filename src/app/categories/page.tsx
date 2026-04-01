@@ -22,7 +22,7 @@ interface FormData {
   color: string;
 }
 
-export default function CategoriesPage({ onMenuClick }: { onMenuClick?: () => void }) {
+export default function CategoriesPage() {
   const { categories, transactions, addCategory, updateCategory, deleteCategory } = useFinance();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -68,7 +68,6 @@ export default function CategoriesPage({ onMenuClick }: { onMenuClick?: () => vo
       <Header
         title="Categories"
         subtitle={`${categories.length} categories`}
-        onMenuClick={onMenuClick || (() => {})}
         actions={
           <Button size="sm" onClick={handleOpenAdd} icon={<Plus className="w-3.5 h-3.5" />}>
             <span className="hidden sm:inline">Add Category</span>
@@ -78,7 +77,7 @@ export default function CategoriesPage({ onMenuClick }: { onMenuClick?: () => vo
       <PageWrapper>
         {categories.length === 0 ? (
           <EmptyState
-            icon={<Tags className="w-7 h-7 text-text-tertiary" />}
+            icon={<Tags className="w-7 h-7" style={{ color: 'var(--text-muted)' }} />}
             title="No categories"
             description="Create your first category to organize transactions"
             action={
@@ -105,8 +104,8 @@ export default function CategoriesPage({ onMenuClick }: { onMenuClick?: () => vo
                         />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-text-primary">{cat.name}</h3>
-                        <p className="text-xs text-text-tertiary">
+                        <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{cat.name}</h3>
+                        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                           {count} transaction{count !== 1 ? 's' : ''}
                         </p>
                       </div>
@@ -114,19 +113,23 @@ export default function CategoriesPage({ onMenuClick }: { onMenuClick?: () => vo
                     <div className="flex items-center gap-1">
                       {cat.isDefault && (
                         <span className="mr-1" title="Default category">
-                          <Lock className="w-3 h-3 text-text-tertiary" />
+                          <Lock className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                         </span>
                       )}
                       <button
                         onClick={() => handleOpenEdit(cat)}
-                        className="p-1.5 rounded-md hover:bg-bg-tertiary transition-colors text-text-tertiary hover:text-text-primary"
+                        className="p-1.5 rounded-md transition-colors hover:opacity-80"
+                        style={{ color: 'var(--text-muted)' }}
+                        aria-label={`Edit ${cat.name}`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       {!cat.isDefault && (
                         <button
                           onClick={() => setDeleteConfirmId(cat.id)}
-                          className="p-1.5 rounded-md hover:bg-expense-bg transition-colors text-text-tertiary hover:text-expense"
+                          className="p-1.5 rounded-md transition-colors hover:opacity-80"
+                          style={{ color: 'var(--text-muted)' }}
+                          aria-label={`Delete ${cat.name}`}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -156,7 +159,7 @@ export default function CategoriesPage({ onMenuClick }: { onMenuClick?: () => vo
             required
           />
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-text-secondary">Color</label>
+            <label className="block text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Color</label>
             <div className="flex flex-wrap gap-2">
               {PRESET_COLORS.map(c => (
                 <button
@@ -164,9 +167,10 @@ export default function CategoriesPage({ onMenuClick }: { onMenuClick?: () => vo
                   type="button"
                   onClick={() => setFormData(f => ({ ...f, color: c }))}
                   className="w-7 h-7 rounded-lg transition-transform hover:scale-110"
+                  aria-label={`Select color ${c}`}
                   style={{
                     backgroundColor: c,
-                    outline: formData.color === c ? '2px solid var(--color-text-primary)' : 'none',
+                    outline: formData.color === c ? '2px solid var(--text-primary)' : 'none',
                     outlineOffset: '2px',
                   }}
                 />
@@ -191,10 +195,10 @@ export default function CategoriesPage({ onMenuClick }: { onMenuClick?: () => vo
         title="Delete Category"
         size="sm"
       >
-        <p className="text-sm text-text-secondary mb-2">
+        <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
           Are you sure you want to delete this category?
         </p>
-        <p className="text-xs text-text-tertiary mb-4">
+        <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
           Transactions in this category will be moved to &quot;Other&quot;.
         </p>
         <div className="flex gap-3">

@@ -15,7 +15,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="space-y-1.5">
         {label && (
-          <label htmlFor={selectId} className="block text-xs font-medium text-text-secondary">
+          <label htmlFor={selectId} className="block text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
             {label}
           </label>
         )}
@@ -23,21 +23,22 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={selectId}
           className={cn(
-            'w-full px-3 py-2 text-sm rounded-lg border transition-colors duration-150',
-            'bg-bg-card text-text-primary',
-            'focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent',
-            error ? 'border-expense' : 'border-border',
+            'w-full h-9 px-3 text-[13px] rounded-xl transition-colors duration-150',
+            'focus:outline-none focus:ring-2 focus:ring-offset-1',
             className
           )}
+          style={{
+            background: 'var(--bg-card)',
+            color: 'var(--text-primary)',
+            border: `1px solid ${error ? 'var(--expense)' : 'var(--border-color)'}`,
+          }}
           {...props}
         >
           {options.map(opt => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        {error && <p className="text-xs text-expense">{error}</p>}
+        {error && <p className="text-[11px]" style={{ color: 'var(--expense)' }}>{error}</p>}
       </div>
     );
   }

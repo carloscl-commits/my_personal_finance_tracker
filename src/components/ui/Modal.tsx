@@ -12,11 +12,7 @@ interface ModalProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const sizeStyles = {
-  sm: 'max-w-md',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
-};
+const sizeStyles = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
 
 export default function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
   useEffect(() => {
@@ -27,9 +23,7 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: M
   }, [open]);
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     if (open) {
       window.addEventListener('keydown', handleEsc);
       return () => window.removeEventListener('keydown', handleEsc);
@@ -39,32 +33,25 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: M
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
       <div
-        className={cn(
-          'relative w-full bg-bg-card rounded-xl shadow-lg animate-scale-in',
-          'max-h-[90vh] flex flex-col',
-          sizeStyles[size]
-        )}
+        className={cn('relative w-full rounded-2xl animate-scale-in max-h-[90vh] flex flex-col', sizeStyles[size])}
+        style={{ background: 'var(--bg-card)', boxShadow: '0 24px 48px rgba(0,0,0,0.12)' }}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2
-            className="text-base font-bold text-text-primary"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-          >
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
+          <h2 className="text-[15px] font-bold" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-md hover:bg-bg-secondary transition-colors text-text-tertiary hover:text-text-primary"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
           >
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="px-6 py-4 overflow-y-auto flex-1">
-          {children}
-        </div>
+        <div className="px-6 py-5 overflow-y-auto flex-1">{children}</div>
       </div>
     </div>
   );

@@ -2,14 +2,10 @@
 
 import React from 'react';
 
-interface PageWrapperProps {
-  children: React.ReactNode;
-}
-
-export default function PageWrapper({ children }: PageWrapperProps) {
+export default function PageWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
-      <div className="max-w-7xl mx-auto animate-fade-in">
+    <main className="flex-1 overflow-y-auto">
+      <div className="max-w-[1400px] mx-auto px-5 lg:px-8 py-6 lg:py-8 animate-fade-in">
         {children}
       </div>
     </main>

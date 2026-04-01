@@ -28,18 +28,20 @@ interface FormData {
   isActive: boolean;
 }
 
-const emptyForm: FormData = {
-  description: '',
-  amount: '',
-  type: 'expense',
-  categoryId: 'cat-food',
-  notes: '',
-  interval: 'monthly',
-  startDate: format(new Date(), 'yyyy-MM-dd'),
-  isActive: true,
-};
+function createEmptyForm(): FormData {
+  return {
+    description: '',
+    amount: '',
+    type: 'expense',
+    categoryId: 'cat-food',
+    notes: '',
+    interval: 'monthly',
+    startDate: format(new Date(), 'yyyy-MM-dd'),
+    isActive: true,
+  };
+}
 
-export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => void }) {
+export default function RecurringPage() {
   const {
     recurringRules,
     categories,
@@ -50,14 +52,14 @@ export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => voi
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [formData, setFormData] = useState<FormData>(createEmptyForm);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const categoryMap = new Map(categories.map(c => [c.id, c]));
 
   const handleOpenAdd = () => {
     setEditingId(null);
-    setFormData(emptyForm);
+    setFormData(createEmptyForm());
     setModalOpen(true);
   };
 
@@ -116,7 +118,6 @@ export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => voi
       <Header
         title="Recurring Transactions"
         subtitle={`${recurringRules.length} rules`}
-        onMenuClick={onMenuClick || (() => {})}
         actions={
           <Button size="sm" onClick={handleOpenAdd} icon={<Plus className="w-3.5 h-3.5" />}>
             <span className="hidden sm:inline">Add Rule</span>
@@ -126,7 +127,7 @@ export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => voi
       <PageWrapper>
         {recurringRules.length === 0 ? (
           <EmptyState
-            icon={<Repeat className="w-7 h-7 text-text-tertiary" />}
+            icon={<Repeat className="w-7 h-7" style={{ color: 'var(--text-muted)' }} />}
             title="No recurring rules"
             description="Set up automatic recurring transactions like subscriptions, salary, or rent"
             action={
@@ -151,14 +152,14 @@ export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => voi
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <p className="text-sm font-medium text-text-primary truncate">
+                        <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                           {rule.description}
                         </p>
                         {!rule.isActive && (
                           <Badge variant="outline">Paused</Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-text-tertiary">
+                      <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
                         <span className="capitalize">{rule.interval}</span>
                         <span>·</span>
                         <span>Since {format(parseISO(rule.startDate), 'MMM d, yyyy')}</span>
@@ -176,7 +177,7 @@ export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => voi
                     <span
                       className="text-sm font-semibold tabular-nums"
                       style={{
-                        color: rule.type === 'income' ? 'var(--color-income)' : 'var(--color-expense)',
+                        color: rule.type === 'income' ? 'var(--income)' : 'var(--expense)',
                       }}
                     >
                       {rule.type === 'income' ? '+' : '-'}{formatCurrency(rule.amount)}
@@ -185,20 +186,25 @@ export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => voi
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleToggleActive(rule)}
-                        className="p-1.5 rounded-md hover:bg-bg-tertiary transition-colors text-text-tertiary hover:text-text-primary"
-                        title={rule.isActive ? 'Pause' : 'Resume'}
+                        className="p-1.5 rounded-md transition-colors hover:opacity-80"
+                        style={{ color: 'var(--text-muted)' }}
+                        aria-label={rule.isActive ? `Pause ${rule.description}` : `Resume ${rule.description}`}
                       >
                         {rule.isActive ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                       </button>
                       <button
                         onClick={() => handleOpenEdit(rule)}
-                        className="p-1.5 rounded-md hover:bg-bg-tertiary transition-colors text-text-tertiary hover:text-text-primary"
+                        className="p-1.5 rounded-md transition-colors hover:opacity-80"
+                        style={{ color: 'var(--text-muted)' }}
+                        aria-label={`Edit ${rule.description}`}
                       >
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => setDeleteConfirmId(rule.id)}
-                        className="p-1.5 rounded-md hover:bg-expense-bg transition-colors text-text-tertiary hover:text-expense"
+                        className="p-1.5 rounded-md transition-colors hover:opacity-80"
+                        style={{ color: 'var(--text-muted)' }}
+                        aria-label={`Delete ${rule.description}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -281,9 +287,10 @@ export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => voi
               type="checkbox"
               checked={formData.isActive}
               onChange={e => setFormData(f => ({ ...f, isActive: e.target.checked }))}
-              className="w-4 h-4 rounded border-border text-accent focus:ring-accent/30"
+              className="w-4 h-4 rounded"
+              style={{ borderColor: 'var(--border-color)', accentColor: 'var(--accent)' }}
             />
-            <span className="text-sm text-text-secondary">Active</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Active</span>
           </label>
           <div className="flex gap-3 pt-2">
             <Button type="submit">
@@ -303,10 +310,10 @@ export default function RecurringPage({ onMenuClick }: { onMenuClick?: () => voi
         title="Delete Recurring Rule"
         size="sm"
       >
-        <p className="text-sm text-text-secondary mb-2">
+        <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
           Are you sure you want to delete this recurring rule?
         </p>
-        <p className="text-xs text-text-tertiary mb-4">
+        <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
           Previously generated transactions will not be affected.
         </p>
         <div className="flex gap-3">

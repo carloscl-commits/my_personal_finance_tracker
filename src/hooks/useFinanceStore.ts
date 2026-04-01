@@ -31,9 +31,11 @@ function createSeedTransactions(): Transaction[] {
   const now = new Date();
   const thisMonth = format(now, 'yyyy-MM');
   const lastMonth = format(addMonths(now, -1), 'yyyy-MM');
+  const lastMonthName = format(addMonths(now, -1), 'MMMM');
+  const thisMonthName = format(now, 'MMMM');
 
   return [
-    { id: generateId(), date: `${lastMonth}-01`, description: 'Monthly Salary', amount: 550000, type: 'income', categoryId: 'cat-salary', notes: 'March paycheck', isRecurring: false },
+    { id: generateId(), date: `${lastMonth}-01`, description: 'Monthly Salary', amount: 550000, type: 'income', categoryId: 'cat-salary', notes: `${lastMonthName} paycheck`, isRecurring: false },
     { id: generateId(), date: `${lastMonth}-03`, description: 'Grocery Store', amount: 8750, type: 'expense', categoryId: 'cat-food', notes: 'Weekly groceries', isRecurring: false },
     { id: generateId(), date: `${lastMonth}-05`, description: 'Electric Bill', amount: 12400, type: 'expense', categoryId: 'cat-housing', notes: '', isRecurring: false },
     { id: generateId(), date: `${lastMonth}-08`, description: 'Freelance Project', amount: 120000, type: 'income', categoryId: 'cat-freelance', notes: 'Web design project', isRecurring: false },
@@ -41,8 +43,8 @@ function createSeedTransactions(): Transaction[] {
     { id: generateId(), date: `${lastMonth}-14`, description: 'Netflix Subscription', amount: 1599, type: 'expense', categoryId: 'cat-entertainment', notes: 'Monthly plan', isRecurring: false },
     { id: generateId(), date: `${lastMonth}-18`, description: 'Doctor Visit', amount: 15000, type: 'expense', categoryId: 'cat-health', notes: 'Annual checkup', isRecurring: false },
     { id: generateId(), date: `${lastMonth}-22`, description: 'New Headphones', amount: 7999, type: 'expense', categoryId: 'cat-shopping', notes: 'Sony WH-1000XM5', isRecurring: false },
-    { id: generateId(), date: `${thisMonth}-01`, description: 'Monthly Salary', amount: 550000, type: 'income', categoryId: 'cat-salary', notes: 'April paycheck', isRecurring: false },
-    { id: generateId(), date: `${thisMonth}-02`, description: 'Rent Payment', amount: 150000, type: 'expense', categoryId: 'cat-housing', notes: 'April rent', isRecurring: false },
+    { id: generateId(), date: `${thisMonth}-01`, description: 'Monthly Salary', amount: 550000, type: 'income', categoryId: 'cat-salary', notes: `${thisMonthName} paycheck`, isRecurring: false },
+    { id: generateId(), date: `${thisMonth}-02`, description: 'Rent Payment', amount: 150000, type: 'expense', categoryId: 'cat-housing', notes: `${thisMonthName} rent`, isRecurring: false },
     { id: generateId(), date: `${thisMonth}-04`, description: 'Grocery Store', amount: 9200, type: 'expense', categoryId: 'cat-food', notes: '', isRecurring: false },
     { id: generateId(), date: `${thisMonth}-06`, description: 'Uber Rides', amount: 3200, type: 'expense', categoryId: 'cat-transport', notes: 'Week total', isRecurring: false },
     { id: generateId(), date: `${thisMonth}-09`, description: 'Freelance Project', amount: 85000, type: 'income', categoryId: 'cat-freelance', notes: 'Logo design', isRecurring: false },
@@ -53,10 +55,21 @@ function createSeedTransactions(): Transaction[] {
 
 function createSeedData(): FinanceData {
   return {
+    version: 1,
     transactions: createSeedTransactions(),
     categories: DEFAULT_CATEGORIES,
     recurringRules: [],
     theme: 'light',
+  };
+}
+
+function migrateData(raw: Record<string, unknown>): FinanceData {
+  return {
+    version: 1,
+    transactions: Array.isArray(raw.transactions) ? raw.transactions : [],
+    categories: Array.isArray(raw.categories) ? raw.categories : DEFAULT_CATEGORIES,
+    recurringRules: Array.isArray(raw.recurringRules) ? raw.recurringRules : [],
+    theme: raw.theme === 'dark' ? 'dark' : 'light',
   };
 }
 
@@ -70,7 +83,9 @@ function loadData(): FinanceData {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
       return seed;
     }
-    return JSON.parse(raw) as FinanceData;
+    const parsed = JSON.parse(raw);
+    if (parsed.version === 1) return parsed as FinanceData;
+    return migrateData(parsed);
   } catch {
     const seed = createSeedData();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
@@ -116,6 +131,11 @@ export function useFinanceStore(): FinanceStore {
     return newTx;
   }, []);
 
+  const addTransactions = useCallback((txs: Omit<Transaction, 'id'>[]): void => {
+    const newTxs: Transaction[] = txs.map(tx => ({ ...tx, id: generateId() }));
+    setData(prev => ({ ...prev, transactions: [...prev.transactions, ...newTxs] }));
+  }, []);
+
   const updateTransaction = useCallback((id: string, updates: Partial<Omit<Transaction, 'id'>>): void => {
     setData(prev => ({
       ...prev,
@@ -156,9 +176,12 @@ export function useFinanceStore(): FinanceStore {
     setData(prev => ({
       ...prev,
       categories: prev.categories.filter(cat => cat.id !== id),
-      // Move transactions with deleted category to "Other"
+      // Move transactions and recurring rules with deleted category to "Other"
       transactions: prev.transactions.map(tx =>
         tx.categoryId === id ? { ...tx, categoryId: 'cat-other' } : tx
+      ),
+      recurringRules: prev.recurringRules.map(rule =>
+        rule.categoryId === id ? { ...rule, categoryId: 'cat-other' } : rule
       ),
     }));
   }, []);
@@ -262,6 +285,7 @@ export function useFinanceStore(): FinanceStore {
   return {
     ...data,
     addTransaction,
+    addTransactions,
     updateTransaction,
     deleteTransaction,
     getTransaction,

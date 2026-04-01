@@ -14,7 +14,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="space-y-1.5">
         {label && (
-          <label htmlFor={textareaId} className="block text-xs font-medium text-text-secondary">
+          <label htmlFor={textareaId} className="block text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
             {label}
           </label>
         )}
@@ -22,16 +22,19 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={textareaId}
           className={cn(
-            'w-full px-3 py-2 text-sm rounded-lg border transition-colors duration-150 resize-none',
-            'bg-bg-card text-text-primary placeholder:text-text-tertiary',
-            'focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent',
-            error ? 'border-expense' : 'border-border',
+            'w-full px-3 py-2 text-[13px] rounded-xl resize-none transition-colors duration-150',
+            'focus:outline-none focus:ring-2 focus:ring-offset-1',
             className
           )}
+          style={{
+            background: 'var(--bg-card)',
+            color: 'var(--text-primary)',
+            border: `1px solid ${error ? 'var(--expense)' : 'var(--border-color)'}`,
+          }}
           rows={3}
           {...props}
         />
-        {error && <p className="text-xs text-expense">{error}</p>}
+        {error && <p className="text-[11px]" style={{ color: 'var(--expense)' }}>{error}</p>}
       </div>
     );
   }

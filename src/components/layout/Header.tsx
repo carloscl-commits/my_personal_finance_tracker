@@ -2,34 +2,47 @@
 
 import React from 'react';
 import { Menu } from 'lucide-react';
+import { useShell } from './AppShell';
 
 interface HeaderProps {
   title: string;
   subtitle?: string;
-  onMenuClick: () => void;
   actions?: React.ReactNode;
 }
 
-export default function Header({ title, subtitle, onMenuClick, actions }: HeaderProps) {
+export default function Header({ title, subtitle, actions }: HeaderProps) {
+  const { onMenuClick } = useShell();
+
   return (
-    <header className="flex items-center justify-between h-16 px-4 lg:px-8 border-b border-border bg-bg-card">
-      <div className="flex items-center gap-3">
+    <header
+      className="flex items-center justify-between h-[60px] px-6 lg:px-8 shrink-0 z-10"
+      style={{
+        background: 'var(--bg-card)',
+        borderBottom: '1px solid var(--border-color)',
+      }}
+    >
+      <div className="flex items-center gap-4 min-w-0">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-lg hover:bg-bg-secondary transition-colors"
+          className="lg:hidden p-2 -ml-2 rounded-xl transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          aria-label="Open menu"
         >
-          <Menu className="w-5 h-5 text-text-primary" />
+          <Menu className="w-5 h-5" />
         </button>
-        <div>
-          <h1 className="text-lg font-bold text-text-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+        <div className="min-w-0">
+          <h1
+            className="text-[17px] font-bold leading-tight truncate"
+            style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}
+          >
             {title}
           </h1>
           {subtitle && (
-            <p className="text-xs text-text-tertiary">{subtitle}</p>
+            <p className="text-[12px] leading-tight mt-0.5" style={{ color: 'var(--text-muted)' }}>{subtitle}</p>
           )}
         </div>
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <div className="flex items-center gap-2 shrink-0 ml-4">{actions}</div>}
     </header>
   );
 }

@@ -14,12 +14,16 @@ export default function Card({ children, className, hover = false, padding = tru
   return (
     <div
       className={cn(
-        'bg-bg-card rounded-xl border border-border',
-        padding && 'p-5',
+        'rounded-2xl',
+        padding && 'p-6',
         hover && 'card-hover cursor-pointer',
         className
       )}
-      style={{ boxShadow: 'var(--shadow-sm)' }}
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-card)',
+      }}
     >
       {children}
     </div>

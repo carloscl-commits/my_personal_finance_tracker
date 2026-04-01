@@ -1,5 +1,5 @@
 import { Transaction, Category } from '@/types/finance';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 
 export interface CsvRow {
   date: string;
@@ -31,7 +31,7 @@ export function exportTransactionsToCsv(
   const categoryMap = new Map(categories.map(c => [c.id, c.name]));
   const header = 'Date,Description,Amount,Type,Category,Notes';
   const rows = transactions.map(tx => {
-    const date = format(parseISO(tx.date), 'yyyy-MM-dd');
+    const date = tx.date;
     const desc = escapeCsvField(tx.description);
     const amount = (tx.amount / 100).toFixed(2);
     const type = tx.type;
@@ -89,24 +89,38 @@ export function parseCsvString(csvText: string, categories: Category[]): ParsedC
     const category = categoryIdx >= 0 ? fields[categoryIdx]?.trim() || '' : '';
     const notes = notesIdx >= 0 ? fields[notesIdx]?.trim() || '' : '';
 
-    // Validate
-    if (!date || isNaN(Date.parse(date))) {
-      errors.push({ row: i, field: 'date', message: `Invalid date: "${date}"` });
+    const rowErrors: CsvValidationError[] = [];
+
+    // Validate and normalize date
+    let normalizedDate = date;
+    if (!date) {
+      rowErrors.push({ row: i, field: 'date', message: 'Date is required' });
+    } else {
+      const parsed = new Date(date);
+      if (isNaN(parsed.getTime())) {
+        rowErrors.push({ row: i, field: 'date', message: `Invalid date: "${date}"` });
+      } else {
+        normalizedDate = format(parsed, 'yyyy-MM-dd');
+      }
     }
     if (!description) {
-      errors.push({ row: i, field: 'description', message: 'Description is required' });
+      rowErrors.push({ row: i, field: 'description', message: 'Description is required' });
     }
     if (!amount || isNaN(parseFloat(amount))) {
-      errors.push({ row: i, field: 'amount', message: `Invalid amount: "${amount}"` });
+      rowErrors.push({ row: i, field: 'amount', message: `Invalid amount: "${amount}"` });
     }
     if (type !== 'income' && type !== 'expense') {
-      errors.push({ row: i, field: 'type', message: `Type must be "income" or "expense", got: "${type}"` });
+      rowErrors.push({ row: i, field: 'type', message: `Type must be "income" or "expense", got: "${type}"` });
     }
     if (category && !categoryNames.has(category.toLowerCase())) {
-      errors.push({ row: i, field: 'category', message: `Unknown category: "${category}"` });
+      rowErrors.push({ row: i, field: 'category', message: `Unknown category: "${category}"` });
     }
 
-    rows.push({ date, description, amount, type, category, notes });
+    errors.push(...rowErrors);
+
+    if (rowErrors.length === 0) {
+      rows.push({ date: normalizedDate, description, amount, type, category, notes });
+    }
   }
 
   return { rows, errors };

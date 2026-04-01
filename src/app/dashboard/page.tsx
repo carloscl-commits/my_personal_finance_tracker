@@ -10,16 +10,10 @@ import CategoryPieChart from '@/components/charts/CategoryPieChart';
 import { useFinance } from '@/hooks/FinanceContext';
 import { formatCurrency } from '@/lib/utils';
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
-import {
-  TrendingUp,
-  TrendingDown,
-  Wallet,
-  ArrowUpRight,
-  ArrowDownRight,
-} from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-export default function DashboardPage({ onMenuClick }: { onMenuClick?: () => void }) {
+export default function DashboardPage() {
   const { transactions, categories } = useFinance();
 
   const now = new Date();
@@ -31,172 +25,159 @@ export default function DashboardPage({ onMenuClick }: { onMenuClick?: () => voi
     return isWithinInterval(d, { start: monthStart, end: monthEnd });
   });
 
-  const totalIncome = currentMonthTxs
-    .filter(tx => tx.type === 'income')
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
-  const totalExpenses = currentMonthTxs
-    .filter(tx => tx.type === 'expense')
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
+  const totalIncome = currentMonthTxs.filter(tx => tx.type === 'income').reduce((s, tx) => s + tx.amount, 0);
+  const totalExpenses = currentMonthTxs.filter(tx => tx.type === 'expense').reduce((s, tx) => s + tx.amount, 0);
   const netBalance = totalIncome - totalExpenses;
 
-  const recentTransactions = [...transactions]
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 5);
-
+  const recentTransactions = [...transactions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const categoryMap = new Map(categories.map(c => [c.id, c]));
+
+  const cards = [
+    {
+      label: 'Total Income', value: totalIncome,
+      color: '#10b981', gradient: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.02) 100%)',
+      glowBorder: 'rgba(16,185,129,0.15)', icon: TrendingUp,
+    },
+    {
+      label: 'Total Expenses', value: totalExpenses,
+      color: '#f43f5e', gradient: 'linear-gradient(135deg, rgba(244,63,94,0.08) 0%, rgba(244,63,94,0.02) 100%)',
+      glowBorder: 'rgba(244,63,94,0.15)', icon: TrendingDown,
+    },
+    {
+      label: 'Net Balance', value: netBalance,
+      color: netBalance >= 0 ? '#10b981' : '#f43f5e',
+      gradient: netBalance >= 0
+        ? 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.02) 100%)'
+        : 'linear-gradient(135deg, rgba(244,63,94,0.08) 0%, rgba(244,63,94,0.02) 100%)',
+      glowBorder: netBalance >= 0 ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)',
+      icon: Wallet,
+    },
+  ];
 
   return (
     <>
-      <Header
-        title="Dashboard"
-        subtitle={format(now, 'MMMM yyyy')}
-        onMenuClick={onMenuClick || (() => {})}
-      />
+      <Header title="Dashboard" subtitle={format(now, 'MMMM yyyy')} />
       <PageWrapper>
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 stagger-children">
-          <Card>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">Income</span>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-income-bg)' }}>
-                <TrendingUp className="w-4 h-4" style={{ color: 'var(--color-income)' }} />
-              </div>
-            </div>
-            <p className="text-2xl font-bold text-text-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              {formatCurrency(totalIncome)}
-            </p>
-            <p className="text-xs text-text-tertiary mt-1">This month</p>
-          </Card>
-
-          <Card>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">Expenses</span>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-expense-bg)' }}>
-                <TrendingDown className="w-4 h-4" style={{ color: 'var(--color-expense)' }} />
-              </div>
-            </div>
-            <p className="text-2xl font-bold text-text-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              {formatCurrency(totalExpenses)}
-            </p>
-            <p className="text-xs text-text-tertiary mt-1">This month</p>
-          </Card>
-
-          <Card>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">Net Balance</span>
+        {/* ── Stat Cards ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8 stagger-children">
+          {cards.map(card => {
+            const Icon = card.icon;
+            return (
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                key={card.label}
+                className="rounded-2xl p-6 relative overflow-hidden"
                 style={{
-                  backgroundColor: netBalance >= 0 ? 'var(--color-income-bg)' : 'var(--color-expense-bg)',
+                  background: card.gradient,
+                  border: `1px solid ${card.glowBorder}`,
+                  boxShadow: `0 0 0 1px ${card.glowBorder}`,
                 }}
               >
-                <Wallet
-                  className="w-4 h-4"
-                  style={{
-                    color: netBalance >= 0 ? 'var(--color-income)' : 'var(--color-expense)',
-                  }}
+                {/* Decorative glow circle */}
+                <div
+                  className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-30 blur-2xl"
+                  style={{ background: card.color }}
                 />
+                <div className="relative flex items-start justify-between">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
+                      {card.label}
+                    </p>
+                    <p className="text-[28px] font-extrabold leading-none tracking-tight" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: card.color }}>
+                      {formatCurrency(card.value)}
+                    </p>
+                    <p className="text-[11px] mt-2.5" style={{ color: 'var(--text-muted)' }}>This month</p>
+                  </div>
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: card.color + '18' }}
+                  >
+                    <Icon className="w-5 h-5" style={{ color: card.color }} />
+                  </div>
+                </div>
               </div>
-            </div>
-            <p
-              className="text-2xl font-bold"
-              style={{
-                fontFamily: 'Space Grotesk, sans-serif',
-                color: netBalance >= 0 ? 'var(--color-income)' : 'var(--color-expense)',
-              }}
-            >
-              {formatCurrency(netBalance)}
-            </p>
-            <p className="text-xs text-text-tertiary mt-1">This month</p>
-          </Card>
+            );
+          })}
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
-          <Card className="lg:col-span-3">
-            <h3
-              className="text-sm font-bold text-text-primary mb-4"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              Income vs Expenses
-            </h3>
+        {/* ── Charts ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
+          <Card className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-[14px] font-bold" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
+                Income vs Expenses
+              </h3>
+              <span className="text-[11px] font-medium px-2.5 py-1 rounded-lg" style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+                Last 6 months
+              </span>
+            </div>
             <IncomeExpenseChart transactions={transactions} />
           </Card>
-
-          <Card className="lg:col-span-2">
-            <h3
-              className="text-sm font-bold text-text-primary mb-4"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
+          <Card>
+            <h3 className="text-[14px] font-bold mb-6" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
               Spending by Category
             </h3>
             <CategoryPieChart transactions={currentMonthTxs} categories={categories} />
           </Card>
         </div>
 
-        {/* Recent Transactions */}
+        {/* ── Recent Transactions ── */}
         <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h3
-              className="text-sm font-bold text-text-primary"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-[14px] font-bold" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
               Recent Transactions
             </h3>
             <Link
               href="/transactions"
-              className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+              className="flex items-center gap-1 text-[12px] font-semibold transition-colors group"
+              style={{ color: 'var(--accent)' }}
             >
               View all
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
           {recentTransactions.length === 0 ? (
-            <p className="text-sm text-text-tertiary text-center py-8">
+            <p className="text-[13px] text-center py-12" style={{ color: 'var(--text-muted)' }}>
               No transactions yet. Add your first one!
             </p>
           ) : (
-            <div className="space-y-1">
-              {recentTransactions.map(tx => {
-                const cat = categoryMap.get(tx.categoryId);
-                return (
-                  <div
-                    key={tx.id}
-                    className="flex items-center gap-3 py-2.5 px-2 rounded-lg hover:bg-bg-secondary transition-colors"
-                  >
-                    <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ backgroundColor: (cat?.color || '#6b7280') + '18' }}
-                    >
-                      {tx.type === 'income' ? (
-                        <ArrowUpRight className="w-4 h-4" style={{ color: 'var(--color-income)' }} />
-                      ) : (
-                        <ArrowDownRight className="w-4 h-4" style={{ color: cat?.color || '#6b7280' }} />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">
-                        {tx.description}
-                      </p>
-                      <p className="text-xs text-text-tertiary">
-                        {format(parseISO(tx.date), 'MMM d, yyyy')}
-                      </p>
-                    </div>
-                    <Badge color={cat?.color}>{cat?.name || 'Other'}</Badge>
-                    <span
-                      className="text-sm font-semibold tabular-nums"
-                      style={{
-                        color: tx.type === 'income' ? 'var(--color-income)' : 'var(--color-expense)',
-                      }}
-                    >
-                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            <table className="w-full">
+              <tbody>
+                {recentTransactions.map(tx => {
+                  const cat = categoryMap.get(tx.categoryId);
+                  return (
+                    <tr key={tx.id} className="group">
+                      <td className="py-3 pr-3 w-10">
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center"
+                          style={{ background: (cat?.color || '#6b7280') + '12' }}
+                        >
+                          {tx.type === 'income'
+                            ? <ArrowUpRight className="w-[18px] h-[18px]" style={{ color: 'var(--income)' }} />
+                            : <ArrowDownRight className="w-[18px] h-[18px]" style={{ color: cat?.color || '#6b7280' }} />
+                          }
+                        </div>
+                      </td>
+                      <td className="py-3">
+                        <p className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>{tx.description}</p>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{format(parseISO(tx.date), 'MMM d, yyyy')}</p>
+                      </td>
+                      <td className="py-3 px-3 hidden sm:table-cell">
+                        <Badge color={cat?.color}>{cat?.name || 'Other'}</Badge>
+                      </td>
+                      <td className="py-3 pl-3 text-right whitespace-nowrap">
+                        <span
+                          className="text-[14px] font-bold tabular-nums"
+                          style={{ color: tx.type === 'income' ? 'var(--income)' : 'var(--expense)' }}
+                        >
+                          {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
         </Card>
       </PageWrapper>

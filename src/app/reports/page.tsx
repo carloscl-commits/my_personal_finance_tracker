@@ -25,7 +25,7 @@ import { ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
 
 type ViewMode = 'monthly' | 'weekly';
 
-export default function ReportsPage({ onMenuClick }: { onMenuClick?: () => void }) {
+export default function ReportsPage() {
   const { transactions, categories } = useFinance();
   const [viewMode, setViewMode] = useState<ViewMode>('monthly');
   const [offset, setOffset] = useState(0);
@@ -143,17 +143,21 @@ export default function ReportsPage({ onMenuClick }: { onMenuClick?: () => void 
     <>
       <Header
         title="Reports"
-        onMenuClick={onMenuClick || (() => {})}
         actions={
           <div className="flex items-center gap-2">
-            <div className="flex bg-bg-secondary rounded-lg p-0.5">
+            <div className="flex rounded-lg p-0.5" style={{ background: 'var(--bg-hover)' }}>
               <button
                 onClick={() => { setViewMode('monthly'); setOffset(0); }}
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                   viewMode === 'monthly'
-                    ? 'bg-bg-card text-text-primary shadow-sm'
-                    : 'text-text-tertiary hover:text-text-secondary'
+                    ? 'shadow-sm'
+                    : 'hover:opacity-80'
                 }`}
+                style={
+                  viewMode === 'monthly'
+                    ? { background: 'var(--bg-card)', color: 'var(--text-primary)' }
+                    : { color: 'var(--text-muted)' }
+                }
               >
                 Monthly
               </button>
@@ -161,9 +165,14 @@ export default function ReportsPage({ onMenuClick }: { onMenuClick?: () => void 
                 onClick={() => { setViewMode('weekly'); setOffset(0); }}
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                   viewMode === 'weekly'
-                    ? 'bg-bg-card text-text-primary shadow-sm'
-                    : 'text-text-tertiary hover:text-text-secondary'
+                    ? 'shadow-sm'
+                    : 'hover:opacity-80'
                 }`}
+                style={
+                  viewMode === 'weekly'
+                    ? { background: 'var(--bg-card)', color: 'var(--text-primary)' }
+                    : { color: 'var(--text-muted)' }
+                }
               >
                 Weekly
               </button>
@@ -182,7 +191,7 @@ export default function ReportsPage({ onMenuClick }: { onMenuClick?: () => void 
           >
             Previous
           </Button>
-          <span className="text-sm font-medium text-text-primary">{periodLabel}</span>
+          <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{periodLabel}</span>
           <Button
             variant="ghost"
             size="sm"
@@ -197,24 +206,24 @@ export default function ReportsPage({ onMenuClick }: { onMenuClick?: () => void 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <Card>
-            <p className="text-xs font-medium text-text-tertiary uppercase tracking-wider mb-1">Period Income</p>
-            <p className="text-xl font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--color-income)' }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Period Income</p>
+            <p className="text-xl font-bold" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--income)' }}>
               {formatCurrency(totalIncome)}
             </p>
           </Card>
           <Card>
-            <p className="text-xs font-medium text-text-tertiary uppercase tracking-wider mb-1">Period Expenses</p>
-            <p className="text-xl font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--color-expense)' }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Period Expenses</p>
+            <p className="text-xl font-bold" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--expense)' }}>
               {formatCurrency(totalExpenses)}
             </p>
           </Card>
           <Card>
-            <p className="text-xs font-medium text-text-tertiary uppercase tracking-wider mb-1">Net</p>
+            <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Net</p>
             <p
               className="text-xl font-bold"
               style={{
-                fontFamily: 'Space Grotesk, sans-serif',
-                color: totalIncome >= totalExpenses ? 'var(--color-income)' : 'var(--color-expense)',
+                fontFamily: 'var(--font-space-grotesk), sans-serif',
+                color: totalIncome >= totalExpenses ? 'var(--income)' : 'var(--expense)',
               }}
             >
               {formatCurrency(totalIncome - totalExpenses)}
@@ -224,13 +233,13 @@ export default function ReportsPage({ onMenuClick }: { onMenuClick?: () => void 
 
         {/* Bar Chart */}
         <Card className="mb-6">
-          <h3 className="text-sm font-bold text-text-primary mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          <h3 className="text-sm font-bold mb-4" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
             Income vs Expenses
           </h3>
           {chartData.every(d => d.income === 0 && d.expenses === 0) ? (
-            <div className="flex items-center justify-center h-[320px] text-text-tertiary text-sm">
+            <div className="flex items-center justify-center h-[320px] text-sm" style={{ color: 'var(--text-muted)' }}>
               <div className="text-center">
-                <BarChart3 className="w-8 h-8 mx-auto mb-2 text-text-tertiary" />
+                <BarChart3 className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
                 No data for this period
               </div>
             </div>
@@ -241,39 +250,39 @@ export default function ReportsPage({ onMenuClick }: { onMenuClick?: () => void 
 
         {/* Category Breakdown Table */}
         <Card>
-          <h3 className="text-sm font-bold text-text-primary mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          <h3 className="text-sm font-bold mb-4" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
             Expense Breakdown by Category
           </h3>
           {categoryBreakdown.length === 0 ? (
-            <p className="text-sm text-text-tertiary text-center py-8">No expenses in this period</p>
+            <p className="text-sm text-center py-8" style={{ color: 'var(--text-muted)' }}>No expenses in this period</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2.5 text-xs font-medium text-text-tertiary uppercase tracking-wider">Category</th>
-                    <th className="text-right py-2.5 text-xs font-medium text-text-tertiary uppercase tracking-wider">Amount</th>
-                    <th className="text-right py-2.5 text-xs font-medium text-text-tertiary uppercase tracking-wider w-24">% of Total</th>
-                    <th className="text-left py-2.5 text-xs font-medium text-text-tertiary uppercase tracking-wider w-40 hidden sm:table-cell" />
+                  <tr style={{ borderBottomWidth: '1px', borderColor: 'var(--border-color)' }}>
+                    <th className="text-left py-2.5 text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Category</th>
+                    <th className="text-right py-2.5 text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Amount</th>
+                    <th className="text-right py-2.5 text-xs font-medium uppercase tracking-wider w-24" style={{ color: 'var(--text-muted)' }}>% of Total</th>
+                    <th className="text-left py-2.5 text-xs font-medium uppercase tracking-wider w-40 hidden sm:table-cell" style={{ color: 'var(--text-muted)' }} />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
                   {categoryBreakdown.map(row => (
-                    <tr key={row.name}>
+                    <tr key={row.name} style={{ borderColor: 'var(--border-color)' }}>
                       <td className="py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: row.color }} />
-                          <span className="font-medium text-text-primary">{row.name}</span>
+                          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{row.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 text-right font-medium text-text-primary tabular-nums">
+                      <td className="py-3 text-right font-medium tabular-nums" style={{ color: 'var(--text-primary)' }}>
                         {formatCurrency(row.amount)}
                       </td>
-                      <td className="py-3 text-right text-text-secondary tabular-nums">
+                      <td className="py-3 text-right tabular-nums" style={{ color: 'var(--text-secondary)' }}>
                         {row.percentage.toFixed(1)}%
                       </td>
                       <td className="py-3 hidden sm:table-cell">
-                        <div className="w-full bg-bg-secondary rounded-full h-2">
+                        <div className="w-full rounded-full h-2" style={{ background: 'var(--bg-hover)' }}>
                           <div
                             className="h-2 rounded-full transition-all duration-500"
                             style={{

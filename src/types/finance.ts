@@ -34,6 +34,7 @@ export interface RecurringRule {
 }
 
 export interface FinanceData {
+  version: number;
   transactions: Transaction[];
   categories: Category[];
   recurringRules: RecurringRule[];
@@ -43,6 +44,7 @@ export interface FinanceData {
 export interface FinanceStore extends FinanceData {
   // Transactions
   addTransaction: (tx: Omit<Transaction, 'id'>) => Transaction;
+  addTransactions: (txs: Omit<Transaction, 'id'>[]) => void;
   updateTransaction: (id: string, updates: Partial<Omit<Transaction, 'id'>>) => void;
   deleteTransaction: (id: string) => void;
   getTransaction: (id: string) => Transaction | undefined;

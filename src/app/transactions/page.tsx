@@ -42,21 +42,24 @@ interface TransactionFormData {
   isRecurring: boolean;
 }
 
-const emptyForm: TransactionFormData = {
-  date: format(new Date(), 'yyyy-MM-dd'),
-  description: '',
-  amount: '',
-  type: 'expense',
-  categoryId: 'cat-food',
-  notes: '',
-  isRecurring: false,
-};
+function createEmptyForm(): TransactionFormData {
+  return {
+    date: format(new Date(), 'yyyy-MM-dd'),
+    description: '',
+    amount: '',
+    type: 'expense',
+    categoryId: 'cat-food',
+    notes: '',
+    isRecurring: false,
+  };
+}
 
-export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => void }) {
+export default function TransactionsPage() {
   const {
     transactions,
     categories,
     addTransaction,
+    addTransactions,
     updateTransaction,
     deleteTransaction,
   } = useFinance();
@@ -70,7 +73,7 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<TransactionFormData>(emptyForm);
+  const [formData, setFormData] = useState<TransactionFormData>(createEmptyForm);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // CSV state
@@ -112,7 +115,7 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
 
   const handleOpenAdd = () => {
     setEditingId(null);
-    setFormData(emptyForm);
+    setFormData(createEmptyForm());
     setModalOpen(true);
   };
 
@@ -189,23 +192,22 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
   };
 
   const handleConfirmImport = () => {
-    if (!csvPreview) return;
+    if (!csvPreview || csvPreview.length === 0) return;
     setCsvImporting(true);
 
     const categoryNameMap = new Map(categories.map(c => [c.name.toLowerCase(), c.id]));
 
-    for (const row of csvPreview) {
-      const catId = categoryNameMap.get(row.category.toLowerCase()) || 'cat-other';
-      addTransaction({
-        date: format(parseISO(row.date), 'yyyy-MM-dd'),
-        description: row.description,
-        amount: parseCurrencyToCents(row.amount),
-        type: row.type as TransactionType,
-        categoryId: catId,
-        notes: row.notes || '',
-        isRecurring: false,
-      });
-    }
+    const txs = csvPreview.map(row => ({
+      date: row.date,
+      description: row.description,
+      amount: parseCurrencyToCents(row.amount),
+      type: row.type as TransactionType,
+      categoryId: categoryNameMap.get(row.category.toLowerCase()) || 'cat-other',
+      notes: row.notes || '',
+      isRecurring: false,
+    }));
+
+    addTransactions(txs);
 
     setCsvPreview(null);
     setCsvErrors([]);
@@ -226,7 +228,7 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
       <>
         <Header
           title="CSV Import / Export"
-          onMenuClick={onMenuClick || (() => {})}
+
           actions={
             <Button variant="ghost" size="sm" onClick={() => setCsvTab(false)}>
               Back to Transactions
@@ -238,14 +240,17 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
             {/* Export */}
             <Card>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-accent-light flex items-center justify-center">
-                  <Download className="w-5 h-5 text-accent" />
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: 'var(--accent-muted)' }}
+                >
+                  <Download className="w-5 h-5" style={{ color: 'var(--accent)' }} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-text-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                  <h3 className="text-sm font-bold" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
                     Export Transactions
                   </h3>
-                  <p className="text-xs text-text-tertiary">Download all transactions as CSV</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Download all transactions as CSV</p>
                 </div>
               </div>
               <Button onClick={handleExport} icon={<Download className="w-4 h-4" />}>
@@ -256,17 +261,23 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
             {/* Import */}
             <Card>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-accent-light flex items-center justify-center">
-                  <Upload className="w-5 h-5 text-accent" />
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: 'var(--accent-muted)' }}
+                >
+                  <Upload className="w-5 h-5" style={{ color: 'var(--accent)' }} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-text-primary" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                  <h3 className="text-sm font-bold" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
                     Import Transactions
                   </h3>
-                  <p className="text-xs text-text-tertiary">Upload a CSV with columns: Date, Description, Amount, Type, Category, Notes</p>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Upload a CSV with columns: Date, Description, Amount, Type, Category, Notes</p>
                 </div>
               </div>
-              <label className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-accent text-white hover:bg-accent-hover transition-colors cursor-pointer btn-press">
+              <label
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white transition-colors cursor-pointer btn-press hover:opacity-80"
+                style={{ background: 'var(--accent)' }}
+              >
                 <Upload className="w-4 h-4" />
                 Choose File
                 <input type="file" accept=".csv" className="hidden" onChange={handleFileUpload} />
@@ -277,15 +288,18 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
           {/* Preview */}
           {csvPreview && (
             <Card className="mt-6">
-              <h3 className="text-sm font-bold text-text-primary mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              <h3 className="text-sm font-bold mb-4" style={{ fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--text-primary)' }}>
                 Import Preview ({csvPreview.length} rows)
               </h3>
 
               {csvErrors.length > 0 && (
-                <div className="mb-4 p-3 rounded-lg border border-expense/30" style={{ backgroundColor: 'var(--color-expense-bg)' }}>
-                  <p className="text-xs font-medium text-expense mb-2">Validation Errors:</p>
+                <div
+                  className="mb-4 p-3 rounded-lg border"
+                  style={{ backgroundColor: 'var(--expense-bg)', borderColor: 'var(--expense)' }}
+                >
+                  <p className="text-xs font-medium mb-2" style={{ color: 'var(--expense)' }}>Validation Errors:</p>
                   {csvErrors.map((err, i) => (
-                    <p key={i} className="text-xs text-expense">
+                    <p key={i} className="text-xs" style={{ color: 'var(--expense)' }}>
                       Row {err.row}: {err.message}
                     </p>
                   ))}
@@ -295,26 +309,33 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-2 text-text-tertiary font-medium">Date</th>
-                      <th className="text-left py-2 text-text-tertiary font-medium">Description</th>
-                      <th className="text-right py-2 text-text-tertiary font-medium">Amount</th>
-                      <th className="text-left py-2 text-text-tertiary font-medium">Type</th>
-                      <th className="text-left py-2 text-text-tertiary font-medium">Category</th>
+                    <tr style={{ borderBottomWidth: '1px', borderColor: 'var(--border-color)' }}>
+                      <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Date</th>
+                      <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Description</th>
+                      <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Amount</th>
+                      <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Type</th>
+                      <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Category</th>
                     </tr>
                   </thead>
                   <tbody>
                     {csvPreview.slice(0, 20).map((row, i) => {
                       const hasError = csvErrors.some(e => e.row === i + 1);
                       return (
-                        <tr key={i} className={`border-b border-border ${hasError ? 'bg-expense-bg' : ''}`}>
-                          <td className="py-2 text-text-primary">{row.date}</td>
-                          <td className="py-2 text-text-primary">{row.description}</td>
-                          <td className="py-2 text-right text-text-primary">${row.amount}</td>
+                        <tr
+                          key={i}
+                          style={{
+                            borderBottomWidth: '1px',
+                            borderColor: 'var(--border-color)',
+                            ...(hasError ? { background: 'var(--expense-bg)' } : {}),
+                          }}
+                        >
+                          <td className="py-2" style={{ color: 'var(--text-primary)' }}>{row.date}</td>
+                          <td className="py-2" style={{ color: 'var(--text-primary)' }}>{row.description}</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-primary)' }}>${row.amount}</td>
                           <td className="py-2">
                             <Badge color={row.type === 'income' ? '#059669' : '#dc2626'}>{row.type}</Badge>
                           </td>
-                          <td className="py-2 text-text-secondary">{row.category || '-'}</td>
+                          <td className="py-2" style={{ color: 'var(--text-secondary)' }}>{row.category || '-'}</td>
                         </tr>
                       );
                     })}
@@ -325,7 +346,7 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
               <div className="flex gap-3 mt-4">
                 <Button
                   onClick={handleConfirmImport}
-                  disabled={csvErrors.some(e => e.row > 0) || csvImporting}
+                  disabled={csvPreview.length === 0 || csvImporting}
                 >
                   {csvImporting ? 'Importing...' : `Import ${csvPreview.length} Transactions`}
                 </Button>
@@ -345,7 +366,7 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
       <Header
         title="Transactions"
         subtitle={`${transactions.length} total`}
-        onMenuClick={onMenuClick || (() => {})}
+
         actions={
           <div className="flex gap-2">
             <Button variant="secondary" size="sm" onClick={() => setCsvTab(true)} icon={<Download className="w-3.5 h-3.5" />}>
@@ -362,13 +383,18 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
         <Card className="mb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="relative lg:col-span-2">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
               <input
                 type="text"
                 placeholder="Search transactions..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-border bg-bg-card text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2"
+                style={{
+                  borderColor: 'var(--border-color)',
+                  background: 'var(--bg-card)',
+                  color: 'var(--text-primary)',
+                }}
               />
             </div>
             <Select
@@ -390,13 +416,23 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
                 type="date"
                 value={filterDateFrom}
                 onChange={e => setFilterDateFrom(e.target.value)}
-                className="flex-1 px-2 py-2 text-xs rounded-lg border border-border bg-bg-card text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+                className="flex-1 px-2 py-2 text-xs rounded-lg border transition-colors focus:outline-none focus:ring-2"
+                style={{
+                  borderColor: 'var(--border-color)',
+                  background: 'var(--bg-card)',
+                  color: 'var(--text-primary)',
+                }}
               />
               <input
                 type="date"
                 value={filterDateTo}
                 onChange={e => setFilterDateTo(e.target.value)}
-                className="flex-1 px-2 py-2 text-xs rounded-lg border border-border bg-bg-card text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors"
+                className="flex-1 px-2 py-2 text-xs rounded-lg border transition-colors focus:outline-none focus:ring-2"
+                style={{
+                  borderColor: 'var(--border-color)',
+                  background: 'var(--bg-card)',
+                  color: 'var(--text-primary)',
+                }}
               />
             </div>
           </div>
@@ -406,7 +442,7 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
         <Card padding={false}>
           {filteredTransactions.length === 0 ? (
             <EmptyState
-              icon={<ArrowLeftRight className="w-7 h-7 text-text-tertiary" />}
+              icon={<ArrowLeftRight className="w-7 h-7" style={{ color: 'var(--text-muted)' }} />}
               title="No transactions found"
               description={search || filterType !== 'all' || filterCategory !== 'all'
                 ? "Try adjusting your filters"
@@ -422,12 +458,16 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
           ) : (
             <>
               {/* Sort Header */}
-              <div className="flex items-center gap-4 px-5 py-3 border-b border-border text-xs font-medium text-text-tertiary uppercase tracking-wider">
+              <div
+                className="flex items-center gap-4 px-5 py-3 text-xs font-medium uppercase tracking-wider"
+                style={{ borderBottomWidth: '1px', borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}
+              >
                 <span className="w-9" />
                 <span className="flex-1">Description</span>
                 <button
                   onClick={() => toggleSort('date')}
-                  className="flex items-center gap-1 hover:text-text-primary transition-colors"
+                  className="flex items-center gap-1 transition-colors hover:opacity-80"
+                  aria-label={`Sort by date ${sortField === 'date' ? (sortDir === 'asc' ? 'descending' : 'ascending') : ''}`}
                 >
                   Date
                   {sortField === 'date' && <ArrowUpDown className="w-3 h-3" />}
@@ -435,7 +475,8 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
                 <span className="w-20 text-center hidden sm:block">Category</span>
                 <button
                   onClick={() => toggleSort('amount')}
-                  className="flex items-center gap-1 w-24 justify-end hover:text-text-primary transition-colors"
+                  className="flex items-center gap-1 w-24 justify-end transition-colors hover:opacity-80"
+                  aria-label={`Sort by amount ${sortField === 'amount' ? (sortDir === 'asc' ? 'descending' : 'ascending') : ''}`}
                 >
                   Amount
                   {sortField === 'amount' && <ArrowUpDown className="w-3 h-3" />}
@@ -444,31 +485,32 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
               </div>
 
               {/* Rows */}
-              <div className="divide-y divide-border">
+              <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
                 {filteredTransactions.map(tx => {
                   const cat = categoryMap.get(tx.categoryId);
                   return (
                     <div
                       key={tx.id}
-                      className="flex items-center gap-4 px-5 py-3 hover:bg-bg-secondary/50 transition-colors"
+                      className="flex items-center gap-4 px-5 py-3 transition-colors hover:opacity-90"
+                      style={{ borderColor: 'var(--border-color)' }}
                     >
                       <div
                         className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
                         style={{ backgroundColor: (cat?.color || '#6b7280') + '18' }}
                       >
                         {tx.type === 'income' ? (
-                          <ArrowUpRight className="w-4 h-4" style={{ color: 'var(--color-income)' }} />
+                          <ArrowUpRight className="w-4 h-4" style={{ color: 'var(--income)' }} />
                         ) : (
                           <ArrowDownRight className="w-4 h-4" style={{ color: cat?.color || '#6b7280' }} />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-text-primary truncate">{tx.description}</p>
+                        <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{tx.description}</p>
                         {tx.notes && (
-                          <p className="text-xs text-text-tertiary truncate">{tx.notes}</p>
+                          <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{tx.notes}</p>
                         )}
                       </div>
-                      <span className="text-xs text-text-tertiary whitespace-nowrap">
+                      <span className="text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
                         {format(parseISO(tx.date), 'MMM d, yyyy')}
                       </span>
                       <span className="w-20 text-center hidden sm:block">
@@ -477,7 +519,7 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
                       <span
                         className="w-24 text-right text-sm font-semibold tabular-nums"
                         style={{
-                          color: tx.type === 'income' ? 'var(--color-income)' : 'var(--color-expense)',
+                          color: tx.type === 'income' ? 'var(--income)' : 'var(--expense)',
                         }}
                       >
                         {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
@@ -485,13 +527,17 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
                       <div className="w-16 flex items-center justify-end gap-1">
                         <button
                           onClick={() => handleOpenEdit(tx)}
-                          className="p-1.5 rounded-md hover:bg-bg-tertiary transition-colors text-text-tertiary hover:text-text-primary"
+                          className="p-1.5 rounded-md transition-colors hover:opacity-80"
+                          style={{ color: 'var(--text-muted)' }}
+                          aria-label={`Edit ${tx.description}`}
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(tx.id)}
-                          className="p-1.5 rounded-md hover:bg-expense-bg transition-colors text-text-tertiary hover:text-expense"
+                          className="p-1.5 rounded-md transition-colors hover:opacity-80"
+                          style={{ color: 'var(--text-muted)' }}
+                          aria-label={`Delete ${tx.description}`}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -566,9 +612,10 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
               type="checkbox"
               checked={formData.isRecurring}
               onChange={e => setFormData(f => ({ ...f, isRecurring: e.target.checked }))}
-              className="w-4 h-4 rounded border-border text-accent focus:ring-accent/30"
+              className="w-4 h-4 rounded"
+              style={{ borderColor: 'var(--border-color)', accentColor: 'var(--accent)' }}
             />
-            <span className="text-sm text-text-secondary">Mark as recurring</span>
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Mark as recurring</span>
           </label>
           <div className="flex gap-3 pt-2">
             <Button type="submit">
@@ -588,7 +635,7 @@ export default function TransactionsPage({ onMenuClick }: { onMenuClick?: () => 
         title="Delete Transaction"
         size="sm"
       >
-        <p className="text-sm text-text-secondary mb-4">
+        <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
           Are you sure you want to delete this transaction? This action cannot be undone.
         </p>
         <div className="flex gap-3">
