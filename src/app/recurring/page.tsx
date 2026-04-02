@@ -48,6 +48,7 @@ export default function RecurringPage() {
     addRecurringRule,
     updateRecurringRule,
     deleteRecurringRule,
+    currency,
   } = useFinance();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -180,7 +181,7 @@ export default function RecurringPage() {
                         color: rule.type === 'income' ? 'var(--income)' : 'var(--expense)',
                       }}
                     >
-                      {rule.type === 'income' ? '+' : '-'}{formatCurrency(rule.amount)}
+                      {rule.type === 'income' ? '+' : '-'}{formatCurrency(rule.amount, currency)}
                     </span>
 
                     <div className="flex items-center gap-1">

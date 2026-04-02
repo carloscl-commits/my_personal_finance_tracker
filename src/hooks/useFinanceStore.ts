@@ -61,6 +61,7 @@ function createSeedData(): FinanceData {
     recurringRules: [],
     theme: 'light',
     accentColor: '#6366f1',
+    currency: 'USD',
   };
 }
 
@@ -72,6 +73,7 @@ function migrateData(raw: Record<string, unknown>): FinanceData {
     recurringRules: Array.isArray(raw.recurringRules) ? raw.recurringRules : [],
     theme: raw.theme === 'dark' ? 'dark' : 'light',
     accentColor: typeof raw.accentColor === 'string' ? raw.accentColor : '#6366f1',
+    currency: typeof raw.currency === 'string' ? raw.currency : 'USD',
   };
 }
 
@@ -282,6 +284,10 @@ export function useFinanceStore(): FinanceStore {
     setData(prev => ({ ...prev, accentColor: color }));
   }, []);
 
+  const setCurrency = useCallback((currency: string): void => {
+    setData(prev => ({ ...prev, currency }));
+  }, []);
+
   // ── Reset ──
   const resetData = useCallback((): void => {
     const seed = createSeedData();
@@ -305,6 +311,7 @@ export function useFinanceStore(): FinanceStore {
     generateDueRecurringTransactions,
     toggleTheme,
     setAccentColor,
+    setCurrency,
     resetData,
   };
 }

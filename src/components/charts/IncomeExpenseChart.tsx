@@ -5,9 +5,9 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { Transaction } from '@/types/finance';
 import { format, subMonths, parseISO, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 
-interface Props { transactions: Transaction[]; months?: number; }
+interface Props { transactions: Transaction[]; months?: number; currencySymbol?: string; }
 
-export default function IncomeExpenseChart({ transactions, months = 6 }: Props) {
+export default function IncomeExpenseChart({ transactions, months = 6, currencySymbol = '$' }: Props) {
   const now = new Date();
   const data = [];
 
@@ -49,7 +49,7 @@ export default function IncomeExpenseChart({ transactions, months = 6 }: Props) 
           tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
           axisLine={false}
           tickLine={false}
-          tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
+          tickFormatter={(v: number) => `${currencySymbol}${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
           width={52}
         />
         <Tooltip
@@ -61,7 +61,7 @@ export default function IncomeExpenseChart({ transactions, months = 6 }: Props) 
             boxShadow: 'var(--shadow-elevated)',
             padding: '10px 14px',
           }}
-          formatter={(value) => [`$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, '']}
+          formatter={(value) => [`${currencySymbol}${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, '']}
           labelStyle={{ color: 'var(--text-muted)', fontSize: '11px', marginBottom: '4px' }}
         />
         <Area

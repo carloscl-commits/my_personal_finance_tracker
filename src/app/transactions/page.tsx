@@ -62,6 +62,7 @@ export default function TransactionsPage() {
     addTransactions,
     updateTransaction,
     deleteTransaction,
+    currency,
   } = useFinance();
 
   const [search, setSearch] = useState('');
@@ -620,7 +621,7 @@ export default function TransactionsPage() {
                           color: tx.type === 'income' ? 'var(--income)' : 'var(--expense)',
                         }}
                       >
-                        {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                        {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currency)}
                       </span>
                       <div style={{ width: 64, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
                         <button

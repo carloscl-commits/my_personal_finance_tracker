@@ -4,9 +4,9 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Transaction, Category } from '@/types/finance';
 
-interface Props { transactions: Transaction[]; categories: Category[]; }
+interface Props { transactions: Transaction[]; categories: Category[]; currencySymbol?: string; }
 
-export default function CategoryPieChart({ transactions, categories }: Props) {
+export default function CategoryPieChart({ transactions, categories, currencySymbol = '$' }: Props) {
   const expensesByCategory = new Map<string, number>();
   for (const tx of transactions) {
     if (tx.type === 'expense') {
@@ -60,7 +60,7 @@ export default function CategoryPieChart({ transactions, categories }: Props) {
               boxShadow: 'var(--shadow-elevated)',
               padding: '10px 14px',
             }}
-            formatter={(value) => [`$${Number(value).toFixed(2)}`, '']}
+            formatter={(value) => [`${currencySymbol}${Number(value).toFixed(2)}`, '']}
           />
         </PieChart>
       </ResponsiveContainer>
@@ -81,7 +81,7 @@ export default function CategoryPieChart({ transactions, categories }: Props) {
               className="text-[12px] font-bold tabular-nums"
               style={{ color: 'var(--text-primary)' }}
             >
-              ${item.value.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+              {currencySymbol}{item.value.toLocaleString('en-US', { maximumFractionDigits: 0 })}
             </span>
             <span
               className="text-[11px] tabular-nums shrink-0 w-8 text-right"

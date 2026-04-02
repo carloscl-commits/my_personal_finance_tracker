@@ -40,6 +40,7 @@ export interface FinanceData {
   recurringRules: RecurringRule[];
   theme: 'light' | 'dark';
   accentColor?: string;
+  currency?: string;
 }
 
 export interface FinanceStore extends FinanceData {
@@ -65,6 +66,7 @@ export interface FinanceStore extends FinanceData {
   // Theme
   toggleTheme: () => void;
   setAccentColor: (color: string) => void;
+  setCurrency: (currency: string) => void;
 
   // Utilities
   resetData: () => void;

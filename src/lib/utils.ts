@@ -1,13 +1,24 @@
 /**
  * Format cents to a currency display string.
  */
-export function formatCurrency(cents: number): string {
+export function formatCurrency(cents: number, currency: string = 'USD'): string {
   const dollars = cents / 100;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency,
     minimumFractionDigits: 2,
   }).format(dollars);
+}
+
+/**
+ * Get the symbol for a currency code (e.g. 'USD' → '$', 'EUR' → '€').
+ */
+export function getCurrencySymbol(currency: string = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(0).replace(/[\d.,\s]/g, '').trim();
 }
 
 /**

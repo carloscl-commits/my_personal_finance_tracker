@@ -7,13 +7,13 @@ import Badge from '@/components/ui/Badge';
 import IncomeExpenseChart from '@/components/charts/IncomeExpenseChart';
 import CategoryPieChart from '@/components/charts/CategoryPieChart';
 import { useFinance } from '@/hooks/FinanceContext';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getCurrencySymbol } from '@/lib/utils';
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { transactions, categories } = useFinance();
+  const { transactions, categories, currency } = useFinance();
 
   const now = new Date();
   const monthStart = startOfMonth(now);
@@ -89,7 +89,7 @@ export default function DashboardPage() {
                         color: card.color,
                       }}
                     >
-                      {formatCurrency(card.value)}
+                      {formatCurrency(card.value, currency)}
                     </p>
                     <p
                       className="text-[11px] mt-2"
@@ -130,7 +130,7 @@ export default function DashboardPage() {
                 Last 6 months
               </span>
             </div>
-            <IncomeExpenseChart transactions={transactions} />
+            <IncomeExpenseChart transactions={transactions} currencySymbol={getCurrencySymbol(currency)} />
           </Card>
           <Card>
             <h3
@@ -142,7 +142,7 @@ export default function DashboardPage() {
             >
               Spending by Category
             </h3>
-            <CategoryPieChart transactions={currentMonthTxs} categories={categories} />
+            <CategoryPieChart transactions={currentMonthTxs} categories={categories} currencySymbol={getCurrencySymbol(currency)} />
           </Card>
         </div>
 
@@ -210,14 +210,14 @@ export default function DashboardPage() {
                         {format(parseISO(tx.date), 'MMM d, yyyy')}
                       </p>
                     </div>
-                    <div className="hidden sm:block">
+                    <div className="hidden sm:block shrink-0">
                       <Badge color={cat?.color}>{cat?.name || 'Other'}</Badge>
                     </div>
                     <span
-                      className="text-[14px] font-bold tabular-nums whitespace-nowrap"
-                      style={{ color: tx.type === 'income' ? 'var(--income)' : 'var(--expense)' }}
+                      className="text-[14px] font-bold tabular-nums whitespace-nowrap shrink-0"
+                      style={{ color: tx.type === 'income' ? 'var(--income)' : 'var(--expense)', minWidth: 100, textAlign: 'right' }}
                     >
-                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currency)}
                     </span>
                   </div>
                 );

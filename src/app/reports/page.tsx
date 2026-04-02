@@ -7,7 +7,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import ReportBarChart from '@/components/charts/ReportBarChart';
 import { useFinance } from '@/hooks/FinanceContext';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getCurrencySymbol } from '@/lib/utils';
 import {
   format,
   parseISO,
@@ -26,7 +26,7 @@ import { ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
 type ViewMode = 'monthly' | 'weekly';
 
 export default function ReportsPage() {
-  const { transactions, categories } = useFinance();
+  const { transactions, categories, currency } = useFinance();
   const [viewMode, setViewMode] = useState<ViewMode>('monthly');
   const [offset, setOffset] = useState(0);
 
@@ -218,13 +218,13 @@ export default function ReportsPage() {
           <Card>
             <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 6 }}>Period Income</p>
             <p style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--income)' }}>
-              {formatCurrency(totalIncome)}
+              {formatCurrency(totalIncome, currency)}
             </p>
           </Card>
           <Card>
             <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 6 }}>Period Expenses</p>
             <p style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--font-space-grotesk), sans-serif', color: 'var(--expense)' }}>
-              {formatCurrency(totalExpenses)}
+              {formatCurrency(totalExpenses, currency)}
             </p>
           </Card>
           <Card>
@@ -236,7 +236,7 @@ export default function ReportsPage() {
                 color: totalIncome >= totalExpenses ? 'var(--income)' : 'var(--expense)',
               }}
             >
-              {formatCurrency(totalIncome - totalExpenses)}
+              {formatCurrency(totalIncome - totalExpenses, currency)}
             </p>
           </Card>
         </div>
@@ -254,7 +254,7 @@ export default function ReportsPage() {
               </div>
             </div>
           ) : (
-            <ReportBarChart data={chartData} />
+            <ReportBarChart data={chartData} currencySymbol={getCurrencySymbol(currency)} />
           )}
         </Card></div>
 
@@ -286,7 +286,7 @@ export default function ReportsPage() {
                         </div>
                       </td>
                       <td style={{ padding: '14px 0', textAlign: 'right', fontWeight: 500, fontVariantNumeric: 'tabular-nums', color: 'var(--text-primary)' }}>
-                        {formatCurrency(row.amount)}
+                        {formatCurrency(row.amount, currency)}
                       </td>
                       <td style={{ padding: '14px 0', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-secondary)' }}>
                         {row.percentage.toFixed(1)}%

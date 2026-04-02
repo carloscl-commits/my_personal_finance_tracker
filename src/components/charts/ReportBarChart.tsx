@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 interface DataPoint { name: string; income: number; expenses: number; }
 
-export default function ReportBarChart({ data }: { data: DataPoint[] }) {
+export default function ReportBarChart({ data, currencySymbol = '$' }: { data: DataPoint[]; currencySymbol?: string }) {
   return (
     <ResponsiveContainer width="100%" height={320}>
       <BarChart data={data} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
@@ -26,7 +26,7 @@ export default function ReportBarChart({ data }: { data: DataPoint[] }) {
           tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
           axisLine={false}
           tickLine={false}
-          tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
+          tickFormatter={(v: number) => `${currencySymbol}${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
           width={52}
         />
         <Tooltip
@@ -38,7 +38,7 @@ export default function ReportBarChart({ data }: { data: DataPoint[] }) {
             boxShadow: 'var(--shadow-elevated)',
             padding: '10px 14px',
           }}
-          formatter={(value) => [`$${Number(value).toFixed(2)}`, '']}
+          formatter={(value) => [`${currencySymbol}${Number(value).toFixed(2)}`, '']}
         />
         <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }} />
         <Bar dataKey="income" fill="var(--income)" radius={[4, 4, 0, 0]} name="Income" />
