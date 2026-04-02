@@ -8,6 +8,12 @@ export interface Category {
   isDefault: boolean;
 }
 
+export interface TransactionAttachment {
+  name: string;
+  type: string; // MIME type
+  data: string; // base64 data URL
+}
+
 export interface Transaction {
   id: string;
   date: string; // ISO date string YYYY-MM-DD
@@ -18,6 +24,7 @@ export interface Transaction {
   notes: string;
   isRecurring: boolean;
   recurringRuleId?: string;
+  attachment?: TransactionAttachment;
 }
 
 export interface RecurringRule {

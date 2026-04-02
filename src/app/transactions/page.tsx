@@ -13,7 +13,7 @@ import Textarea from '@/components/ui/Textarea';
 import EmptyState from '@/components/ui/EmptyState';
 import { useFinance } from '@/hooks/FinanceContext';
 import { formatCurrency, parseCurrencyToCents } from '@/lib/utils';
-import { Transaction, TransactionType } from '@/types/finance';
+import { Transaction, TransactionType, TransactionAttachment } from '@/types/finance';
 import { format, parseISO } from 'date-fns';
 import {
   Plus,
@@ -26,6 +26,10 @@ import {
   ArrowLeftRight,
   Download,
   Upload,
+  Paperclip,
+  X,
+  FileText,
+  Image,
 } from 'lucide-react';
 import { exportTransactionsToCsv, downloadCsv, parseCsvString, CsvRow } from '@/lib/csv';
 
@@ -76,6 +80,8 @@ export default function TransactionsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<TransactionFormData>(createEmptyForm);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [attachment, setAttachment] = useState<TransactionAttachment | null>(null);
+  const [attachmentError, setAttachmentError] = useState('');
 
   // CSV state
   const [csvTab, setCsvTab] = useState(false);
@@ -117,6 +123,8 @@ export default function TransactionsPage() {
   const handleOpenAdd = () => {
     setEditingId(null);
     setFormData(createEmptyForm());
+    setAttachment(null);
+    setAttachmentError('');
     setModalOpen(true);
   };
 
@@ -131,7 +139,34 @@ export default function TransactionsPage() {
       notes: tx.notes,
       isRecurring: tx.isRecurring,
     });
+    setAttachment(tx.attachment || null);
+    setAttachmentError('');
     setModalOpen(true);
+  };
+
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+  const ACCEPTED_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+
+  const handleAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setAttachmentError('');
+
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      setAttachmentError('Only PDF and image files are accepted.');
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setAttachmentError('File must be under 2 MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAttachment({ name: file.name, type: file.type, data: reader.result as string });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -139,7 +174,7 @@ export default function TransactionsPage() {
     const amount = parseCurrencyToCents(formData.amount);
     if (!formData.description || amount <= 0) return;
 
-    const txData = {
+    const txData: Omit<Transaction, 'id'> = {
       date: formData.date,
       description: formData.description,
       amount,
@@ -147,6 +182,7 @@ export default function TransactionsPage() {
       categoryId: formData.categoryId,
       notes: formData.notes,
       isRecurring: formData.isRecurring,
+      attachment: attachment || undefined,
     };
 
     if (editingId) {
@@ -598,9 +634,14 @@ export default function TransactionsPage() {
                         )}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {tx.description}
-                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {tx.description}
+                          </p>
+                          {tx.attachment && (
+                            <Paperclip style={{ width: 12, height: 12, color: 'var(--text-muted)', flexShrink: 0 }} />
+                          )}
+                        </div>
                         {tx.notes && (
                           <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {tx.notes}
@@ -713,6 +754,86 @@ export default function TransactionsPage() {
             />
             <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Mark as recurring</span>
           </label>
+
+          {/* Attachment */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>
+              Attachment (optional)
+            </span>
+            {attachment ? (
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 12px', borderRadius: 10,
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-inset)',
+                }}
+              >
+                {attachment.type === 'application/pdf' ? (
+                  <FileText style={{ width: 18, height: 18, color: 'var(--expense)', flexShrink: 0 }} />
+                ) : (
+                  <Image style={{ width: 18, height: 18, color: 'var(--accent)', flexShrink: 0 }} />
+                )}
+                <span
+                  style={{
+                    flex: 1, fontSize: 12, color: 'var(--text-primary)',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}
+                >
+                  {attachment.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => window.open(attachment.data, '_blank')}
+                  style={{
+                    padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)',
+                    background: 'none', fontSize: 11, fontWeight: 600,
+                    color: 'var(--text-secondary)', cursor: 'pointer',
+                  }}
+                >
+                  View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAttachment(null)}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: 24, height: 24, borderRadius: 6,
+                    border: 'none', background: 'none', cursor: 'pointer',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  <X style={{ width: 14, height: 14 }} />
+                </button>
+              </div>
+            ) : (
+              <label
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  padding: '16px 12px', borderRadius: 10,
+                  border: '1.5px dashed var(--border-color)',
+                  background: 'var(--bg-inset)',
+                  cursor: 'pointer',
+                  transition: 'border-color 150ms',
+                }}
+              >
+                <Paperclip style={{ width: 16, height: 16, color: 'var(--text-muted)' }} />
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  Attach PDF or image (max 2 MB)
+                </span>
+                <input
+                  type="file"
+                  accept=".pdf,image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                  onChange={handleAttachment}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            )}
+            {attachmentError && (
+              <p style={{ fontSize: 11, color: 'var(--expense)' }}>{attachmentError}</p>
+            )}
+          </div>
+
           <div style={{ display: 'flex', gap: 12, paddingTop: 8 }}>
             <Button type="submit">
               {editingId ? 'Update' : 'Add'} Transaction
