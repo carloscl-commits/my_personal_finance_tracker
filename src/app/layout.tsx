@@ -26,6 +26,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} h-full`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              var d = JSON.parse(localStorage.getItem('finance_app_data'));
+              if (d && d.theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+              }
+            } catch(e) {}
+          })();
+        `}} />
+      </head>
       <body className="h-full antialiased">
         {children}
       </body>

@@ -8,9 +8,10 @@ interface CardProps {
   className?: string;
   hover?: boolean;
   padding?: boolean;
+  style?: React.CSSProperties;
 }
 
-export default function Card({ children, className, hover = false, padding = true }: CardProps) {
+export default function Card({ children, className, hover = false, padding = true, style }: CardProps) {
   return (
     <div
       className={cn(
@@ -19,10 +20,11 @@ export default function Card({ children, className, hover = false, padding = tru
         className
       )}
       style={{
-        padding: padding ? 32 : 0,
+        ...(padding ? { padding: 32 } : {}),
         background: 'var(--bg-card)',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-card)',
+        ...style,
       }}
     >
       {children}

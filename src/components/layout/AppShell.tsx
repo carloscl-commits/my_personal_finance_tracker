@@ -26,6 +26,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const onToggleCollapse = useCallback(() => setCollapsed(c => !c), []);
 
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
     const saved = localStorage.getItem('sidebar_collapsed');
     if (saved === 'true') setCollapsed(true);
     requestAnimationFrame(() => setMounted(true));
@@ -42,7 +46,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <ShellCtx.Provider value={{ onMenuClick, sidebarCollapsed: collapsed }}>
       <div
-        data-theme={theme}
         className="h-screen overflow-hidden"
         style={{ background: 'var(--bg-page)' }}
       >

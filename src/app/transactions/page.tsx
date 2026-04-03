@@ -12,7 +12,7 @@ import Badge from '@/components/ui/Badge';
 import Textarea from '@/components/ui/Textarea';
 import EmptyState from '@/components/ui/EmptyState';
 import { useFinance } from '@/hooks/FinanceContext';
-import { formatCurrency, parseCurrencyToCents } from '@/lib/utils';
+import { formatCurrency, parseCurrencyToCents, getCurrencySymbol } from '@/lib/utils';
 import { Transaction, TransactionType, TransactionAttachment } from '@/types/finance';
 import { format, parseISO } from 'date-fns';
 import {
@@ -705,7 +705,7 @@ export default function TransactionsPage() {
               required
             />
             <Input
-              label="Amount ($)"
+              label={`Amount (${getCurrencySymbol(currency)})`}
               type="number"
               step="0.01"
               min="0.01"

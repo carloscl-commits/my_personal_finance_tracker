@@ -160,6 +160,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-press:active { transform: scale(0.98); transition: transform 0.08s; }
 
+/* ── Date input icon color in dark mode ── */
+[data-theme="dark"] ::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
 /* ── Table row dividers ── */
 .divide-y > * + * {
   border-top: 1px solid var(--border-color);

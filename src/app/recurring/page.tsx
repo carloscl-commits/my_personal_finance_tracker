@@ -138,11 +138,11 @@ export default function RecurringPage() {
             }
           />
         ) : (
-          <div className="space-y-3 stagger-children">
+          <div className="stagger-children" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {recurringRules.map(rule => {
               const cat = categoryMap.get(rule.categoryId);
               return (
-                <Card key={rule.id}>
+                <Card key={rule.id} padding={false} style={{ padding: '16px 20px' }}>
                   <div className="flex items-center gap-4">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
